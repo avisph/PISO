@@ -17,6 +17,14 @@ const run = (chunks: string[]): string => {
   return out + filter.flush()
 }
 
+/** What the filter set aside as a possible tool call. */
+const captured = (chunks: string[]): string[] => {
+  const filter = createThinkFilter()
+  for (const chunk of chunks) filter.push(chunk)
+  filter.flush()
+  return filter.toolText()
+}
+
 const split = (text: string, size: number): string[] =>
   text.match(new RegExp(`.{1,${size}}`, 'gs')) ?? []
 
@@ -34,6 +42,12 @@ const cases: [label: string, chunks: string[], expected: string][] = [
   // rather than swallow something the model actually said.
   ['fragment at end of stream is text', ['done <thi'], 'done <thi'],
   ['newlines inside the block', ['<think>line1\nline2</think>out'], 'out'],
+  // qwen3 emits tool calls as text when its template misfires. The JSON must
+  // never reach the bubble — this is what shipped, once.
+  ['tool block stripped', ['reply.\n\n<tools>\n{"name":"x"}\n</tools>'], 'reply.\n\n'],
+  ['tool_call block stripped', ['ok <tool_call>{"a":1}</tool_call> done'], 'ok  done'],
+  ['tool block split across chunks', ['ok <to', 'ols>{"a":1}</to', 'ols> done'], 'ok  done'],
+  ['think and tools together', ['<think>hm</think>ok<tools>{"a":1}</tools>'], 'ok'],
 ]
 
 let failed = 0
@@ -47,5 +61,17 @@ for (const [label, chunks, expected] of cases) {
   )
 }
 
-console.log(failed ? `\n✗ ${failed} failed` : `\n✓ ${cases.length} passed`)
+// Stripping is only half the job: a tool call that arrived as text still has
+// to become a draft card rather than vanishing.
+const kept = captured(['x <tools>\n{"name":"draft_transaction","arguments":{"amount":"350.00"}}\n</tools>'])
+const keptOk = kept.length === 1 && kept[0].includes('350.00')
+console.log(`  ${keptOk ? '✓' : '✗'} tool text is captured, not discarded`)
+if (!keptOk) failed += 1
+
+const noise = captured(['<think>I should call draft_transaction</think>plain answer'])
+const noiseOk = noise.length === 0
+console.log(`  ${noiseOk ? '✓' : '✗'} thinking is not mistaken for a tool call`)
+if (!noiseOk) failed += 1
+
+console.log(failed ? `\n✗ ${failed} failed` : `\n✓ all passed`)
 process.exit(failed ? 1 : 0)

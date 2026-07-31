@@ -44,10 +44,17 @@ Prefer a **tool-capable** model — Bes creates the draft-confirm card by callin
 text parser) but the parse is rougher. `ai:check` marks which of yours support tools.
 
 **Reasoning models are fine.** qwen3, deepseek-r1 and other hybrids narrate before they
-answer. Newer Ollama builds move that into `message.thinking`; older ones leave
-`<think>…</think>` inline in the content. Both are stripped before anything reaches the
-chat bubble, including when a tag is split across streamed chunks —
-`npx tsx scripts/check-think-filter.ts` covers that.
+answer, and when a build's tool template misfires they print the tool call as text —
+a `<tools>` block of raw JSON — instead of returning `message.tool_calls`. Both are
+stripped before anything reaches the chat bubble, including when a tag is split across
+streamed chunks. The tool block is not merely hidden: it is parsed, so the draft card
+still appears. `npx tsx scripts/check-think-filter.ts` covers it.
+
+**A draft can only restate money you just mentioned.** Asked "where did my money go?",
+a local model drafted two transactions by lifting the envelope totals out of the snapshot;
+confirming them would have charged those pesos a second time. The prompt forbids it and
+the server enforces it — a message with no amount in it produces no draft, and one reply
+may produce at most one.
 
 Networking gotchas, in the order they usually bite:
 

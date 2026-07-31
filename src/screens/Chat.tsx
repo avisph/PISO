@@ -9,6 +9,28 @@ import { PERSONALITIES } from './Onboarding'
 const SUGGESTIONS = ["What's due soon?", 'Where did my money go?', 'Plan my salary']
 
 /**
+ * Models like to hand back their whole reply wrapped in quotation marks, as
+ * if reciting it. The bubble already reads as speech, so a pair of quotes
+ * around all of it just looks like a bug.
+ */
+function unquote(text: string): string {
+  const trimmed = text.trim()
+  const pairs: [string, string][] = [
+    ['"', '"'],
+    ['“', '”'],
+    ["'", "'"],
+  ]
+  for (const [open, close] of pairs) {
+    if (trimmed.length > 1 && trimmed.startsWith(open) && trimmed.endsWith(close)) {
+      const inner = trimmed.slice(1, -1)
+      // Only when the quotes wrap everything — not when Bes is quoting you.
+      if (!inner.includes(close)) return inner
+    }
+  }
+  return text
+}
+
+/**
  * 1f — Bes. Q&A over the finance snapshot, plus the parse-draft confirm card:
  * Bes never writes to the ledger, she drafts and the user confirms.
  */
@@ -184,7 +206,7 @@ export function Chat() {
 
           return (
             <div key={index} style={{ display: 'contents' }}>
-              {turn.text && <div className="bubble-bes">{turn.text}</div>}
+              {turn.text && <div className="bubble-bes">{unquote(turn.text)}</div>}
 
               {turn.draft && turn.toolUseId && !outcome && (
                 <DraftCard

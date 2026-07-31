@@ -6,6 +6,7 @@ import fs from 'node:fs'
 import express from 'express'
 import type { ChatRequest, ChatStatus } from '../shared/chat'
 import { offlineReply } from './offline'
+import { mentionsAmount } from './bes'
 import type { Provider } from './providers/types'
 import { createAnthropicProvider } from './providers/anthropic'
 import { createOllamaProvider, probeOllama } from './providers/ollama'
@@ -96,8 +97,35 @@ app.post('/api/chat', async (req, res) => {
   res.setHeader('Connection', 'keep-alive')
   res.flushHeaders?.()
 
-  const send = (event: Parameters<Provider['stream']>[1] extends (e: infer E) => void ? E : never) => {
+  // The last thing the user actually said, which is all a draft may describe.
+  const lastUser = [...body.turns].reverse().find((t) => t.role === 'user')
+  const userText = lastUser?.role === 'user' ? lastUser.text : ''
+  const mayDraft = mentionsAmount(userText)
+  let draftSent = false
+
+  const rawSend = (event: Parameters<Provider['stream']>[1] extends (e: infer E) => void ? E : never) => {
     res.write(`data: ${JSON.stringify(event)}\n\n`)
+  }
+
+  /**
+   * The prompt asks models not to draft for a question; this enforces it.
+   *
+   * Asked "where did my money go?", a local model happily drafted two
+   * transactions by lifting the envelope totals out of the snapshot. Confirming
+   * those would have charged the same pesos twice. A draft may only ever
+   * restate an amount the user just gave, and there may only be one.
+   */
+  const send: typeof rawSend = (event) => {
+    if (event.type === 'draft') {
+      if (!mayDraft || draftSent) {
+        console.warn(
+          `[chat] dropped a draft — ${draftSent ? 'one was already sent' : 'no amount in the message'}`,
+        )
+        return
+      }
+      draftSent = true
+    }
+    rawSend(event)
   }
 
   if (!provider) {

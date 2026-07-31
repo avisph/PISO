@@ -34,21 +34,33 @@ interface OllamaMessage {
 }
 
 /**
- * Strips `<think>…</think>` out of a token stream.
+ * Strips the model's own markup out of a token stream.
  *
- * Reasoning models (qwen3, deepseek-r1, and anything hybrid) narrate before
- * they answer. Newer Ollama builds move that into `message.thinking`, but
- * older ones leave the tags inline in `content` — and either way it must not
- * reach the chat bubble, where it reads as Bes thinking out loud at you.
+ * Two things leak into `content` on local models. Reasoning models (qwen3,
+ * deepseek-r1) narrate inside `<think>…</think>` before they answer. And when
+ * a build's tool template misfires, the tool call itself arrives as *text* —
+ * qwen3 emits a `<tools>` or `<tool_call>` block of raw JSON — instead of as a
+ * structured `message.tool_calls`. Neither belongs in a chat bubble.
+ *
+ * What is stripped is also captured, so a tool call that came through as text
+ * can still become a draft card rather than being thrown away.
  *
  * The tags arrive split across chunks, so this holds back any trailing text
  * that could still turn out to be the start of one.
  */
+const STRIPPED = [
+  { open: '<think>', close: '</think>', keep: false },
+  { open: '<tools>', close: '</tools>', keep: true },
+  { open: '<tool_call>', close: '</tool_call>', keep: true },
+  { open: '<tool_response>', close: '</tool_response>', keep: false },
+] as const
+
 export function createThinkFilter() {
-  const OPEN = '<think>'
-  const CLOSE = '</think>'
   let held = ''
-  let inside = false
+  let inside: (typeof STRIPPED)[number] | null = null
+  /** Text captured from `keep` blocks — candidate tool calls. */
+  const captured: string[] = []
+  let capturing = ''
 
   /** Longest suffix of `text` that is a proper prefix of `tag`. */
   const danglingPrefix = (text: string, tag: string): number => {
@@ -59,6 +71,23 @@ export function createThinkFilter() {
     return 0
   }
 
+  /** The earliest opening tag in `text`, if any. */
+  const nextOpen = (text: string) => {
+    let best: { at: number; tag: (typeof STRIPPED)[number] } | null = null
+    for (const tag of STRIPPED) {
+      const at = text.indexOf(tag.open)
+      if (at !== -1 && (!best || at < best.at)) best = { at, tag }
+    }
+    return best
+  }
+
+  /** How much to hold back in case a tag is only half-arrived. */
+  const holdBack = (text: string): number => {
+    let keep = 0
+    for (const tag of STRIPPED) keep = Math.max(keep, danglingPrefix(text, tag.open))
+    return keep
+  }
+
   return {
     push(chunk: string): string {
       held += chunk
@@ -66,27 +95,33 @@ export function createThinkFilter() {
 
       for (;;) {
         if (inside) {
-          const end = held.indexOf(CLOSE)
+          const end = held.indexOf(inside.close)
           if (end === -1) {
-            // Keep only what might be a partial closing tag.
-            held = held.slice(held.length - danglingPrefix(held, CLOSE))
+            const keep = danglingPrefix(held, inside.close)
+            if (inside.keep) capturing += held.slice(0, held.length - keep)
+            held = held.slice(held.length - keep)
             return out
           }
-          held = held.slice(end + CLOSE.length)
-          inside = false
+          if (inside.keep) {
+            capturing += held.slice(0, end)
+            captured.push(capturing)
+            capturing = ''
+          }
+          held = held.slice(end + inside.close.length)
+          inside = null
           continue
         }
 
-        const start = held.indexOf(OPEN)
-        if (start === -1) {
-          const keep = danglingPrefix(held, OPEN)
+        const found = nextOpen(held)
+        if (!found) {
+          const keep = holdBack(held)
           out += held.slice(0, held.length - keep)
           held = held.slice(held.length - keep)
           return out
         }
-        out += held.slice(0, start)
-        held = held.slice(start + OPEN.length)
-        inside = true
+        out += held.slice(0, found.at)
+        held = held.slice(found.at + found.tag.open.length)
+        inside = found.tag
       }
     },
     /** Anything still held back at the end was never a tag after all. */
@@ -94,6 +129,10 @@ export function createThinkFilter() {
       const rest = inside ? '' : held
       held = ''
       return rest
+    },
+    /** Raw text from `<tools>` / `<tool_call>` blocks, in arrival order. */
+    toolText(): string[] {
+      return captured
     },
   }
 }
@@ -155,6 +194,14 @@ export function createOllamaProvider(): Provider {
       let assembled = ''
       let drafted = false
 
+      // At most one card per reply: the UI shows a single draft, and a model
+      // that emits three has invented at least two of them.
+      const emitDraft = (draft: ReturnType<typeof coerceDraft>) => {
+        if (drafted || !draft) return
+        drafted = true
+        send({ type: 'draft', draft, toolUseId: `ollama-${Date.now()}` })
+      }
+
       // /api/chat streams newline-delimited JSON, one object per chunk.
       for (;;) {
         const { done, value } = await reader.read()
@@ -194,11 +241,7 @@ export function createOllamaProvider(): Provider {
 
           for (const call of chunk.message?.tool_calls ?? []) {
             if (call.function?.name !== DRAFT_TOOL.name) continue
-            const draft = coerceDraft(normaliseArguments(call.function.arguments))
-            if (draft) {
-              drafted = true
-              send({ type: 'draft', draft, toolUseId: `ollama-${Date.now()}` })
-            }
+            emitDraft(coerceDraft(normaliseArguments(call.function.arguments)))
           }
         }
       }
@@ -207,6 +250,20 @@ export function createOllamaProvider(): Provider {
       if (tail) {
         assembled += tail
         send({ type: 'text', text: tail })
+      }
+
+      // A tool call that arrived as text rather than as `message.tool_calls`.
+      // The filter kept the block out of the bubble; this is where it becomes
+      // a real draft instead of being discarded.
+      if (!drafted) {
+        for (const block of think.toolText()) {
+          for (const call of extractToolCalls(block)) {
+            if (call.name && call.name !== DRAFT_TOOL.name) continue
+            emitDraft(coerceDraft(call.arguments))
+            if (drafted) break
+          }
+          if (drafted) break
+        }
       }
 
       // Smaller models often narrate a transaction instead of calling the tool.
@@ -226,6 +283,53 @@ export function createOllamaProvider(): Provider {
       }
     },
   }
+}
+
+/**
+ * Pulls tool calls out of a text block a model emitted instead of calling the
+ * tool properly. The shapes seen in the wild are `{"name":…,"arguments":{…}}`,
+ * a bare arguments object, and several of either concatenated with no
+ * separator — so this scans for balanced top-level JSON objects rather than
+ * trying to parse the block as a whole.
+ */
+function extractToolCalls(block: string): { name?: string; arguments: unknown }[] {
+  const out: { name?: string; arguments: unknown }[] = []
+  let depth = 0
+  let start = -1
+  let inString = false
+  let escaped = false
+
+  for (let i = 0; i < block.length; i += 1) {
+    const c = block[i]
+    if (inString) {
+      if (escaped) escaped = false
+      else if (c === '\\') escaped = true
+      else if (c === '"') inString = false
+      continue
+    }
+    if (c === '"') inString = true
+    else if (c === '{') {
+      if (depth === 0) start = i
+      depth += 1
+    } else if (c === '}') {
+      depth -= 1
+      if (depth === 0 && start !== -1) {
+        try {
+          const parsed = JSON.parse(block.slice(start, i + 1)) as Record<string, unknown>
+          out.push(
+            'arguments' in parsed
+              ? { name: parsed.name as string | undefined, arguments: normaliseArguments(parsed.arguments) }
+              : { arguments: parsed },
+          )
+        } catch {
+          // Not JSON after all — the model was talking.
+        }
+        start = -1
+      }
+      if (depth < 0) depth = 0
+    }
+  }
+  return out
 }
 
 /** Some builds hand back the arguments object as a JSON string. */
