@@ -7,6 +7,7 @@ import { DesktopDashboard } from './screens/DesktopDashboard'
 import { Money } from './screens/Money'
 import { Planner } from './screens/Planner'
 import { Bills } from './screens/Bills'
+import { Transactions } from './screens/Transactions'
 import { Debts } from './screens/Debts'
 import { DebtDetail } from './screens/DebtDetail'
 import { Chat } from './screens/Chat'
@@ -124,6 +125,8 @@ function renderScreen(
       return <Planner onBack={back} />
     case 'bills':
       return <Bills />
+    case 'transactions':
+      return <Transactions onBack={back} />
     case 'debts':
       return <Debts onNavigate={navigate} />
     case 'debt':
@@ -162,7 +165,7 @@ function DesktopRail({
 }) {
   const isCurrent = (item: Route) =>
     item.name === route.name ||
-    (item.name === 'money' && ['planner', 'bills', 'reports'].includes(route.name)) ||
+    (item.name === 'money' && ['planner', 'bills', 'reports', 'transactions'].includes(route.name)) ||
     (item.name === 'debts' && route.name === 'debt') ||
     (item.name === 'settings' && ['appearance', 'personality'].includes(route.name))
 

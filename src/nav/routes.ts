@@ -5,6 +5,7 @@ export type Route =
   | { name: 'money' }
   | { name: 'planner' }
   | { name: 'bills' }
+  | { name: 'transactions' }
   | { name: 'debts' }
   | { name: 'debt'; id: string }
   | { name: 'chat' }
@@ -29,6 +30,8 @@ export function fromHash(hash: string): Route {
       return { name: 'planner' }
     case 'bills':
       return { name: 'bills' }
+    case 'transactions':
+      return { name: 'transactions' }
     case 'debts':
       return id ? { name: 'debt', id } : { name: 'debts' }
     case 'chat':
@@ -55,6 +58,7 @@ export function tabFor(route: Route): 'home' | 'money' | 'debts' | 'chat' | null
     case 'planner':
     case 'bills':
     case 'reports':
+    case 'transactions':
       return 'money'
     case 'debts':
     case 'debt':

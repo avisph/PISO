@@ -24,7 +24,14 @@ export function Money({ onNavigate }: { onNavigate: (route: Route) => void }) {
   const cycle = cycleProgress(plan, now)
   const week = upcoming(data, 7, now)
 
+  const recent = data.transactions.length
+
   const rows: { label: string; meta: string; route: Route }[] = [
+    {
+      label: 'Activity',
+      meta: `${recent} ${recent === 1 ? 'entry' : 'entries'} · review, edit, delete`,
+      route: { name: 'transactions' },
+    },
     {
       label: 'Bills',
       meta: `${week.count} due in 7 days · ${formatMoney(week.total)}`,
