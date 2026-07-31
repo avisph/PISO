@@ -56,7 +56,12 @@ export type ChatEvent =
   | { type: 'done' }
 
 export interface ChatStatus {
-  /** True when the server has credentials and will call Claude for real. */
+  /** True when a real model answers; false means the canned library. */
   live: boolean
   model: string
+  provider: 'anthropic' | 'ollama' | 'offline'
+  /** Where requests go — surfaced so a misconfigured host is obvious. */
+  endpoint?: string
+  /** Startup probe result, e.g. "localhost:11434 has llama3.1:8b". */
+  note?: string
 }

@@ -10,15 +10,30 @@ npm install
 npm run dev          # web on :5173, api on :8787
 ```
 
-Open http://localhost:5173. To talk to Claude for real, put a key in `.env`
-(see `.env.example`) before starting:
+Open http://localhost:5173. Bes runs on **Ollama** by default when you give her a key
+(see `.env.example`):
 
 ```bash
-ANTHROPIC_API_KEY=sk-ant-... npm run dev
+OLLAMA_API_KEY=... npm run dev                      # Ollama Cloud (ollama.com)
+OLLAMA_HOST=http://localhost:11434 npm run dev      # your own daemon, no key needed
 ```
 
-Without a key the chat still works — it answers from a canned Taglish response
-library and says so on screen.
+The model defaults to `gpt-oss:120b` on the cloud and `llama3.1:8b` locally — override with
+`OLLAMA_MODEL`. Pick one that supports **tool calling**: Bes drafts transactions by calling
+a `draft_transaction` tool, and while the server falls back to a local text parser when a
+model doesn't call it, that parse is much rougher.
+
+At startup the server probes the host and tells you if the model isn't there:
+
+```
+piso api on http://localhost:8787 — chat via ollama (gpt-oss:120b) at https://ollama.com
+  ✓ https://ollama.com has gpt-oss:120b
+```
+
+Claude is still wired up (`ANTHROPIC_API_KEY` + `PISO_MODEL`), and `PISO_AI_PROVIDER`
+forces a choice: `ollama` · `anthropic` · `offline` · `auto` (the default — Ollama if
+configured, then Claude, then the canned library). With no provider at all the chat still
+works from a canned Taglish library and says so on screen.
 
 ## What's here
 
@@ -54,9 +69,12 @@ src/
   styles/     tokens.css (4 themes, one semantic token set), app.css (screens)
   screens/    one file per design option
 server/
-  index.ts    /api/chat — streams Claude; the key never reaches the browser
-  bes.ts      the persona prompt + the draft_transaction tool
-  offline.ts  the canned library used when there are no credentials
+  index.ts              /api/chat — picks a provider, streams events; keys never
+                        reach the browser
+  bes.ts                the persona prompt + the provider-neutral tool schema
+  providers/ollama.ts   native /api/chat, NDJSON streaming, Bearer key
+  providers/anthropic.ts  the Claude path (adaptive thinking, low effort)
+  offline.ts            the canned library used when no provider is configured
 ```
 
 **Theming.** Every screen paints with `--p-*` only, so a theme is nothing but a different
@@ -73,11 +91,13 @@ payoff projection, snowball/avalanche, the health score. The dashboard and Bes r
 same functions, so the number in the hero and the number in a chat answer cannot drift.
 
 **Bes.** The server builds a bounded snapshot (derived numbers only — no transaction
-history) and streams `claude-opus-5` with adaptive thinking at low effort. When you
-describe a transaction she calls a `draft_transaction` tool; the app renders that as the
-confirm card and **only writes to the ledger when you press Confirm**. Health, family and
-emergency spending is never joked about — that rule lives in the prompt and in the local
-reaction library.
+history) and streams it to whichever provider is configured. Every provider emits the same
+event stream, so the UI never learns which model answered. When you describe a transaction
+the model calls a `draft_transaction` tool; the app renders that as the confirm card and
+**only writes to the ledger when you press Confirm**. Health, family and emergency spending
+is never joked about — that rule lives in the prompt and in the local reaction library.
+
+Settings → "How honest should Bes be?" shows which provider, model and host are answering.
 
 ## Numbers that differ from the mockup
 

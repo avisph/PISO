@@ -79,11 +79,16 @@ Accounts (use these ids when drafting): ${context.accounts.map((a) => `${a.name}
 Categories (use these ids when drafting): ${context.categories.map((c) => `${c.name}=${c.id}`).join(', ')}`
 }
 
+/**
+ * The draft tool, described once in provider-neutral terms. Each provider
+ * adapts it to its own wire shape (Anthropic `input_schema`, Ollama
+ * `function.parameters`).
+ */
 export const DRAFT_TOOL = {
   name: 'draft_transaction',
   description:
     'Draft a transaction the user just described in chat, so they can confirm it. Call this whenever the user reports money moving — spending, receiving, transferring or paying a debt. Never call it for hypothetical or future spending ("can I afford X" is a question, not a transaction).',
-  input_schema: {
+  parameters: {
     type: 'object' as const,
     properties: {
       kind: {
@@ -111,5 +116,4 @@ export const DRAFT_TOOL = {
     required: ['kind', 'amount'],
     additionalProperties: false,
   },
-  strict: true,
 }

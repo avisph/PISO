@@ -1,9 +1,11 @@
+import { useEffect, useState } from 'react'
 import { useStore } from '../state/store'
 import { BackLink, Kicker, Switch } from '../components/ui'
 import { themeById } from '../theme/themes'
 import { PERSONALITIES, PersonalityPicker } from './Onboarding'
 import { formatMoney, peso } from '../lib/money'
 import type { Route } from '../nav/routes'
+import type { ChatStatus } from '../../shared/chat'
 
 const BUFFERS = [peso(500), peso(1_500), peso(2_500), peso(5_000)]
 
@@ -113,6 +115,14 @@ export function Settings({
 /** Settings → personality, reusing the onboarding picker verbatim. */
 export function PersonalitySettings({ onBack }: { onBack: () => void }) {
   const [data] = useStore()
+  const [status, setStatus] = useState<ChatStatus | null>(null)
+
+  useEffect(() => {
+    fetch('/api/chat/status')
+      .then((r) => r.json())
+      .then(setStatus)
+      .catch(() => setStatus(null))
+  }, [])
 
   return (
     <div className="screen screen--pad-bottom" style={{ gap: 16 }}>
@@ -130,6 +140,19 @@ export function PersonalitySettings({ onBack }: { onBack: () => void }) {
       <p className="quote">
         Currently: {PERSONALITIES.find((p) => p.key === data.profile.personality)?.name}
       </p>
+
+      {status && (
+        <div className="stack" style={{ gap: 4 }}>
+          <Kicker tone="faint">Answering via</Kicker>
+          <div className="muted" style={{ fontSize: 11.5, lineHeight: 1.5 }}>
+            {status.provider === 'offline'
+              ? 'the built-in response library — no model configured on the server'
+              : `${status.provider} · ${status.model}`}
+            {status.endpoint && status.provider !== 'offline' ? ` · ${status.endpoint}` : ''}
+            {status.note ? ` — ${status.note}` : ''}
+          </div>
+        </div>
+      )}
     </div>
   )
 }

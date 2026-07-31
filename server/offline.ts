@@ -30,7 +30,12 @@ function parseAmount(text: string): string | null {
   return value.toFixed(2)
 }
 
-function parseDraft(text: string): Draft | null {
+/**
+ * A last-resort natural-language parse. Used by the offline library, and as a
+ * safety net for models whose tool calling is unreliable — the user still has
+ * to confirm the draft, so a wrong guess costs one tap.
+ */
+export function parseDraft(text: string): Draft | null {
   const amount = parseAmount(text)
   if (!amount) return null
   if (/\b(afford|kaya ko ba|pwede ba|should i|magkano|how much)\b/i.test(text)) return null

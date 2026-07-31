@@ -3,13 +3,13 @@ import { fileURLToPath } from 'node:url'
 import path from 'node:path'
 import fs from 'node:fs'
 import express from 'express'
-import Anthropic from '@anthropic-ai/sdk'
-import type { ChatEvent, ChatRequest, ChatStatus, ChatTurn, Draft } from '../shared/chat'
-import { BES_PERSONA, DRAFT_TOOL, contextBlock } from './bes'
+import type { ChatRequest, ChatStatus } from '../shared/chat'
 import { offlineReply } from './offline'
+import type { Provider } from './providers/types'
+import { createAnthropicProvider } from './providers/anthropic'
+import { createOllamaProvider, probeOllama } from './providers/ollama'
 
 const PORT = Number(process.env.PORT ?? 8787)
-const MODEL = process.env.PISO_MODEL ?? 'claude-opus-5'
 const DIRNAME = path.dirname(fileURLToPath(import.meta.url))
 const DIST = path.resolve(DIRNAME, '../dist')
 
@@ -17,21 +17,34 @@ const DIST = path.resolve(DIRNAME, '../dist')
  * The AI never touches the database and the key never touches the client
  * (blueprint §7). This route builds a bounded snapshot, sends it out, and
  * validates what comes back before the UI ever sees it.
+ *
+ * Which model answers is a deployment choice: PISO_AI_PROVIDER=ollama|anthropic,
+ * or `auto` (the default), which prefers Ollama when it is configured and falls
+ * back to Claude, then to the canned library.
  */
 
-// A bare client picks up ANTHROPIC_API_KEY, ANTHROPIC_AUTH_TOKEN, or an
-// `ant auth login` profile — so "no key in env" doesn't necessarily mean
-// "no credentials". We only fall back to the offline library when the SDK
-// itself cannot resolve one.
-let client: Anthropic | null = null
-try {
-  client = new Anthropic()
-} catch {
-  client = null
+const requested = (process.env.PISO_AI_PROVIDER ?? 'auto').toLowerCase()
+const ollamaConfigured = Boolean(process.env.OLLAMA_API_KEY || process.env.OLLAMA_HOST)
+
+function selectProvider(): Provider | null {
+  if (requested === 'ollama') return createOllamaProvider()
+  if (requested === 'anthropic') {
+    const anthropic = createAnthropicProvider()
+    return anthropic.available ? anthropic : null
+  }
+  if (requested === 'offline') return null
+
+  // auto
+  if (ollamaConfigured) return createOllamaProvider()
+  const anthropic = createAnthropicProvider()
+  return anthropic.available ? anthropic : null
 }
-const hasCredentials = Boolean(
-  process.env.ANTHROPIC_API_KEY || process.env.ANTHROPIC_AUTH_TOKEN || client?.apiKey,
-)
+
+const provider = selectProvider()
+let providerNote = provider?.reason ?? ''
+// Flipped false when the startup probe says the host or model is wrong, so the
+// chat screen can say so instead of failing on the first message.
+let providerHealthy = true
 
 const app = express()
 app.use(express.json({ limit: '256kb' }))
@@ -41,7 +54,13 @@ app.get('/api/health', (_req, res) => {
 })
 
 app.get('/api/chat/status', (_req, res) => {
-  const status: ChatStatus = { live: hasCredentials, model: MODEL }
+  const status: ChatStatus = {
+    live: Boolean(provider?.available) && providerHealthy,
+    model: provider?.model ?? 'canned response library',
+    provider: provider?.id ?? 'offline',
+    endpoint: provider?.endpoint,
+    note: providerNote || undefined,
+  }
   res.json(status)
 })
 
@@ -76,13 +95,13 @@ app.post('/api/chat', async (req, res) => {
   res.setHeader('Connection', 'keep-alive')
   res.flushHeaders?.()
 
-  const send = (event: ChatEvent) => {
+  const send = (event: Parameters<Provider['stream']>[1] extends (e: infer E) => void ? E : never) => {
     res.write(`data: ${JSON.stringify(event)}\n\n`)
   }
 
-  if (!client || !hasCredentials) {
-    // No credentials: fall back to the canned Taglish library so the screen
-    // still demonstrates the interaction, and say so plainly.
+  if (!provider) {
+    // No provider configured: fall back to the canned Taglish library so the
+    // screen still demonstrates the interaction, and say so plainly.
     for (const event of offlineReply(body)) send(event)
     send({ type: 'done' })
     res.end()
@@ -90,136 +109,21 @@ app.post('/api/chat', async (req, res) => {
   }
 
   try {
-    const stream = client.messages.stream({
-      model: MODEL,
-      max_tokens: 1200,
-      // Thinking stays on (adaptive) with low effort: on Opus 5 disabling it
-      // can make the model write a tool call as plain text instead of calling
-      // the tool, which would silently drop the draft card.
-      thinking: { type: 'adaptive' },
-      output_config: { effort: 'low' },
-      system: [
-        { type: 'text', text: BES_PERSONA, cache_control: { type: 'ephemeral' } },
-        { type: 'text', text: contextBlock(body.context) },
-      ],
-      tools: [DRAFT_TOOL],
-      messages: toAnthropicMessages(body.turns),
-    })
-
-    stream.on('text', (delta) => send({ type: 'text', text: delta }))
-
-    const message = await stream.finalMessage()
-
-    if (message.stop_reason === 'refusal') {
-      send({
-        type: 'error',
-        message: 'Bes declined that one. Try asking a different way.',
-      })
-    }
-
-    for (const block of message.content) {
-      if (block.type === 'tool_use' && block.name === 'draft_transaction') {
-        const draft = coerceDraft(block.input)
-        if (draft) send({ type: 'draft', draft, toolUseId: block.id })
-      }
-    }
+    await provider.stream(body, send)
   } catch (error) {
-    console.error('[chat]', error)
-    const message =
-      error instanceof Anthropic.APIError
-        ? `Claude said no (${error.status}). ${error.message}`
-        : 'Could not reach Claude just now.'
-    send({ type: 'error', message })
+    console.error(`[chat:${provider.id}]`, error)
+    send({
+      type: 'error',
+      message:
+        error instanceof Error
+          ? `${provider.id} error — ${error.message}`
+          : `Could not reach ${provider.id} just now.`,
+    })
   }
 
   send({ type: 'done' })
   res.end()
 })
-
-/**
- * Map the visible conversation onto Messages API shapes. Any assistant turn
- * that called the tool must be answered by a tool_result — if the user moved
- * on without confirming, we synthesise one so the request stays valid.
- */
-function toAnthropicMessages(turns: ChatTurn[]): Anthropic.MessageParam[] {
-  const messages: Anthropic.MessageParam[] = []
-
-  turns.forEach((turn, index) => {
-    if (turn.role === 'user') {
-      messages.push({ role: 'user', content: turn.text })
-      return
-    }
-
-    if (turn.role === 'assistant') {
-      if (turn.draft && turn.toolUseId) {
-        const content: Anthropic.ContentBlockParam[] = []
-        if (turn.text.trim()) content.push({ type: 'text', text: turn.text })
-        content.push({
-          type: 'tool_use',
-          id: turn.toolUseId,
-          name: 'draft_transaction',
-          input: turn.draft as unknown as Record<string, unknown>,
-        })
-        messages.push({ role: 'assistant', content })
-
-        const answered =
-          turns[index + 1]?.role === 'tool_result' &&
-          (turns[index + 1] as Extract<ChatTurn, { role: 'tool_result' }>).toolUseId ===
-            turn.toolUseId
-        if (!answered) {
-          messages.push({
-            role: 'user',
-            content: [
-              {
-                type: 'tool_result',
-                tool_use_id: turn.toolUseId,
-                content: 'The draft is still on screen; the user has not confirmed it yet.',
-              },
-            ],
-          })
-        }
-        return
-      }
-
-      if (turn.text.trim()) messages.push({ role: 'assistant', content: turn.text })
-      return
-    }
-
-    messages.push({
-      role: 'user',
-      content: [{ type: 'tool_result', tool_use_id: turn.toolUseId, content: turn.result }],
-    })
-  })
-
-  return messages
-}
-
-/** Validate the tool input before it reaches the confirm card. */
-function coerceDraft(input: unknown): Draft | null {
-  if (!input || typeof input !== 'object') return null
-  const raw = input as Record<string, unknown>
-
-  const kind = raw.kind
-  if (kind !== 'expense' && kind !== 'income' && kind !== 'transfer' && kind !== 'debt_payment') {
-    return null
-  }
-
-  const amount = typeof raw.amount === 'string' ? raw.amount : String(raw.amount ?? '')
-  if (!/^\d+(\.\d{1,2})?$/.test(amount.replace(/,/g, ''))) return null
-
-  const str = (value: unknown) => (typeof value === 'string' && value ? value : undefined)
-
-  return {
-    kind,
-    amount: amount.replace(/,/g, ''),
-    categoryId: str(raw.categoryId),
-    merchant: str(raw.merchant),
-    accountId: str(raw.accountId),
-    debtId: str(raw.debtId),
-    date: str(raw.date),
-    note: str(raw.note),
-  }
-}
 
 // Serve the built app in production; in dev, Vite serves the client and
 // proxies /api here.
@@ -228,10 +132,24 @@ if (fs.existsSync(DIST)) {
   app.get('*', (_req, res) => res.sendFile(path.join(DIST, 'index.html')))
 }
 
-createServer(app).listen(PORT, () => {
+createServer(app).listen(PORT, async () => {
+  if (!provider) {
+    console.log(
+      `piso api on http://localhost:${PORT} — chat is offline (no provider configured; using the canned library)`,
+    )
+    return
+  }
+
   console.log(
-    `piso api on http://localhost:${PORT} — chat is ${
-      hasCredentials ? `live (${MODEL})` : 'offline (no ANTHROPIC_API_KEY; using the canned library)'
-    }`,
+    `piso api on http://localhost:${PORT} — chat via ${provider.id} (${provider.model}) at ${provider.endpoint}`,
   )
+
+  // A wrong model name or an unreachable host is the usual Ollama snag; report
+  // it at startup instead of on the user's first message.
+  if (provider.id === 'ollama') {
+    const probe = await probeOllama()
+    providerHealthy = probe.ok
+    providerNote = probe.detail
+    console.log(probe.ok ? `  ✓ ${probe.detail}` : `  ! ${probe.detail}`)
+  }
 })

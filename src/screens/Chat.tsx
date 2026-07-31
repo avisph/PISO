@@ -30,7 +30,7 @@ export function Chat() {
     fetch('/api/chat/status')
       .then((r) => r.json())
       .then(setStatus)
-      .catch(() => setStatus({ live: false, model: 'unavailable' }))
+      .catch(() => setStatus({ live: false, model: 'unavailable', provider: 'offline' }))
   }, [])
 
   useEffect(() => {
@@ -214,8 +214,18 @@ export function Chat() {
       <div className="chat__foot">
         {status && !status.live && (
           <div className="chat__notice">
-            Offline mode — no <code>ANTHROPIC_API_KEY</code> on the server, so Bes is answering from
-            the canned library. Add a key and restart to talk to Claude ({status.model}) for real.
+            {status.provider === 'offline' ? (
+              <>
+                Offline mode — no model configured on the server, so Bes is answering from the
+                canned library. Set <code>OLLAMA_API_KEY</code> (or{' '}
+                <code>ANTHROPIC_API_KEY</code>) and restart to talk to a real model.
+              </>
+            ) : (
+              <>
+                {status.provider} isn't answering, so Bes is falling back to the canned library.
+                {status.note ? ` ${status.note}` : ''}
+              </>
+            )}
           </div>
         )}
 
