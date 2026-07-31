@@ -27,8 +27,75 @@ const MODEL = process.env.OLLAMA_MODEL ?? (isCloud ? 'gpt-oss:120b' : 'llama3.1:
 interface OllamaMessage {
   role: 'system' | 'user' | 'assistant' | 'tool'
   content: string
+  /** Recent builds split reasoning out of `content`; we never show it. */
+  thinking?: string
   tool_calls?: { function: { name: string; arguments: Record<string, unknown> } }[]
   tool_name?: string
+}
+
+/**
+ * Strips `<think>…</think>` out of a token stream.
+ *
+ * Reasoning models (qwen3, deepseek-r1, and anything hybrid) narrate before
+ * they answer. Newer Ollama builds move that into `message.thinking`, but
+ * older ones leave the tags inline in `content` — and either way it must not
+ * reach the chat bubble, where it reads as Bes thinking out loud at you.
+ *
+ * The tags arrive split across chunks, so this holds back any trailing text
+ * that could still turn out to be the start of one.
+ */
+export function createThinkFilter() {
+  const OPEN = '<think>'
+  const CLOSE = '</think>'
+  let held = ''
+  let inside = false
+
+  /** Longest suffix of `text` that is a proper prefix of `tag`. */
+  const danglingPrefix = (text: string, tag: string): number => {
+    const max = Math.min(text.length, tag.length - 1)
+    for (let n = max; n > 0; n -= 1) {
+      if (text.endsWith(tag.slice(0, n))) return n
+    }
+    return 0
+  }
+
+  return {
+    push(chunk: string): string {
+      held += chunk
+      let out = ''
+
+      for (;;) {
+        if (inside) {
+          const end = held.indexOf(CLOSE)
+          if (end === -1) {
+            // Keep only what might be a partial closing tag.
+            held = held.slice(held.length - danglingPrefix(held, CLOSE))
+            return out
+          }
+          held = held.slice(end + CLOSE.length)
+          inside = false
+          continue
+        }
+
+        const start = held.indexOf(OPEN)
+        if (start === -1) {
+          const keep = danglingPrefix(held, OPEN)
+          out += held.slice(0, held.length - keep)
+          held = held.slice(held.length - keep)
+          return out
+        }
+        out += held.slice(0, start)
+        held = held.slice(start + OPEN.length)
+        inside = true
+      }
+    },
+    /** Anything still held back at the end was never a tag after all. */
+    flush(): string {
+      const rest = inside ? '' : held
+      held = ''
+      return rest
+    },
+  }
 }
 
 export function createOllamaProvider(): Provider {
@@ -83,6 +150,7 @@ export function createOllamaProvider(): Provider {
 
       const reader = response.body.getReader()
       const decoder = new TextDecoder()
+      const think = createThinkFilter()
       let buffer = ''
       let assembled = ''
       let drafted = false
@@ -113,10 +181,15 @@ export function createOllamaProvider(): Provider {
 
           if (chunk.error) throw new Error(chunk.error)
 
-          const text = chunk.message?.content
-          if (text) {
-            assembled += text
-            send({ type: 'text', text })
+          // `message.thinking` is deliberately ignored — that is the model's
+          // reasoning, not its answer.
+          const raw = chunk.message?.content
+          if (raw) {
+            const text = think.push(raw)
+            if (text) {
+              assembled += text
+              send({ type: 'text', text })
+            }
           }
 
           for (const call of chunk.message?.tool_calls ?? []) {
@@ -128,6 +201,12 @@ export function createOllamaProvider(): Provider {
             }
           }
         }
+      }
+
+      const tail = think.flush()
+      if (tail) {
+        assembled += tail
+        send({ type: 'text', text: tail })
       }
 
       // Smaller models often narrate a transaction instead of calling the tool.

@@ -43,6 +43,12 @@ Prefer a **tool-capable** model — Bes creates the draft-confirm card by callin
 `draft_transaction` tool. Without one she still works (the server falls back to a local
 text parser) but the parse is rougher. `ai:check` marks which of yours support tools.
 
+**Reasoning models are fine.** qwen3, deepseek-r1 and other hybrids narrate before they
+answer. Newer Ollama builds move that into `message.thinking`; older ones leave
+`<think>…</think>` inline in the content. Both are stripped before anything reaches the
+chat bubble, including when a tag is split across streamed chunks —
+`npx tsx scripts/check-think-filter.ts` covers that.
+
 Networking gotchas, in the order they usually bite:
 
 | Situation | `OLLAMA_HOST` |
