@@ -11,10 +11,18 @@ import { coerceDraft, type Provider } from './types'
  */
 
 const API_KEY = process.env.OLLAMA_API_KEY ?? ''
+
+/**
+ * An explicit OLLAMA_HOST always wins — that is the self-hosted case (the same
+ * base URL you would put in an n8n Ollama credential). A key with no host means
+ * Ollama Cloud.
+ */
 const HOST = (
   process.env.OLLAMA_HOST ?? (API_KEY ? 'https://ollama.com' : 'http://localhost:11434')
 ).replace(/\/+$/, '')
-const MODEL = process.env.OLLAMA_MODEL ?? (API_KEY ? 'gpt-oss:120b' : 'llama3.1:8b')
+
+const isCloud = /(^|\.)ollama\.com$/i.test(new URL(HOST).hostname)
+const MODEL = process.env.OLLAMA_MODEL ?? (isCloud ? 'gpt-oss:120b' : 'llama3.1:8b')
 
 interface OllamaMessage {
   role: 'system' | 'user' | 'assistant' | 'tool'
@@ -54,7 +62,15 @@ export function createOllamaProvider(): Provider {
               },
             },
           ],
-          options: { temperature: 0.7, num_predict: 800 },
+          options: {
+            temperature: 0.7,
+            num_predict: 800,
+            // Ollama defaults to a small context (2–4k depending on build).
+            // The persona plus the finance snapshot is ~1k tokens on its own,
+            // so a short window silently truncates the numbers Bes is meant to
+            // answer from. Raise it; lower via OLLAMA_NUM_CTX if RAM is tight.
+            num_ctx: Number(process.env.OLLAMA_NUM_CTX ?? 8192),
+          },
         }),
       })
 

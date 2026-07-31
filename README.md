@@ -10,24 +10,54 @@ npm install
 npm run dev          # web on :5173, api on :8787
 ```
 
-Open http://localhost:5173. Bes runs on **Ollama** by default when you give her a key
-(see `.env.example`):
+Open http://localhost:5173.
+
+### Pointing Bes at your Ollama
+
+Use the same base URL you already use in n8n. This command checks it and lists what's
+installed:
 
 ```bash
-OLLAMA_API_KEY=... npm run dev                      # Ollama Cloud (ollama.com)
-OLLAMA_HOST=http://localhost:11434 npm run dev      # your own daemon, no key needed
+npm run ai:check
+OLLAMA_HOST=http://192.168.1.20:11434 npm run ai:check    # if it's on another box
 ```
 
-The model defaults to `gpt-oss:120b` on the cloud and `llama3.1:8b` locally — override with
-`OLLAMA_MODEL`. Pick one that supports **tool calling**: Bes drafts transactions by calling
-a `draft_transaction` tool, and while the server falls back to a local text parser when a
-model doesn't call it, that parse is much rougher.
+```
+✓ Host is up with 3 models:
 
-At startup the server probes the host and tells you if the model isn't there:
+   qwen2.5:7b                     4.7 GB   tools ✓
+   llama3.2:3b                    2.0 GB   tools ✓
+   nomic-embed-text:latest        0.3 GB   no tools
+
+Put this in your .env:
+
+    OLLAMA_HOST=http://localhost:11434
+    OLLAMA_MODEL=qwen2.5:7b
+```
+
+Prefer a **tool-capable** model — Bes creates the draft-confirm card by calling a
+`draft_transaction` tool. Without one she still works (the server falls back to a local
+text parser) but the parse is rougher. `ai:check` marks which of yours support tools.
+
+Networking gotchas, in the order they usually bite:
+
+| Situation | `OLLAMA_HOST` |
+| --- | --- |
+| Ollama and Piso on the same machine | `http://localhost:11434` |
+| Ollama in Docker, Piso on the host | `http://localhost:11434` (publish `11434:11434`) |
+| Piso in Docker, Ollama on the host | `http://host.docker.internal:11434` |
+| Ollama on another box | `http://<ip>:11434` — and set `OLLAMA_HOST=0.0.0.0` **on the daemon**, otherwise it only listens on loopback |
+| Behind a proxy that wants a token | add `OLLAMA_API_KEY=…` (sent as `Authorization: Bearer`) |
+
+`OLLAMA_NUM_CTX` defaults to 8192: the persona plus the finance snapshot is ~1k tokens and
+Ollama's default window is small enough to truncate it, which makes a model answer from
+half a snapshot. Lower it if RAM is tight.
+
+The server re-checks at startup and says what it found:
 
 ```
-piso api on http://localhost:8787 — chat via ollama (gpt-oss:120b) at https://ollama.com
-  ✓ https://ollama.com has gpt-oss:120b
+piso api on http://localhost:8787 — chat via ollama (qwen2.5:7b) at http://localhost:11434
+  ✓ http://localhost:11434 has qwen2.5:7b
 ```
 
 Claude is still wired up (`ANTHROPIC_API_KEY` + `PISO_MODEL`), and `PISO_AI_PROVIDER`
@@ -119,6 +149,7 @@ Say the word if you'd rather pin any of these to the mockup values exactly.
 | `npm run dev` | Vite (5173) + the API (8787), with `/api` proxied |
 | `npm run build` | typecheck + production bundle into `dist/` |
 | `npm start` | serves `dist/` and the API from one Node process |
+| `npm run ai:check` | probes your Ollama and lists tool-capable models |
 
 ## Not built yet
 
