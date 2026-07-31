@@ -1,0 +1,173 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Piso — one semantic token set, four skins.
+   Every screen paints with --p-* only; a theme is nothing but different values.
+
+   Core semantic roles (the eight the design brief named):
+     --p-bg  --p-surface  --p-text  --p-muted  --p-accent  --p-positive
+     --p-warn  --p-border
+   The remaining --p-* are derived tints of those roles (text-2, faint, dim,
+   track, accent-soft…) so states can be tuned per theme without new components.
+
+   Values are carried over verbatim from `Piso Mockups.dc.html`.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  --font-heading: 'Inter Variable', 'Inter', system-ui, sans-serif;
+  --font-body: 'Inter Variable', 'Inter', system-ui, sans-serif;
+
+  /* Nocturne's compact scale (density 0.70x) and radii. */
+  --space-1: 2.8px;
+  --space-2: 5.6px;
+  --space-3: 8.4px;
+  --space-4: 11.2px;
+  --space-6: 16.8px;
+  --space-8: 22.4px;
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+}
+
+/* ── Sorbetes — warm light (default) ─────────────────────────────────────── */
+:root,
+.th-sorbetes {
+  --p-bg: #faf5ec;
+  --p-surface: #ffffff;
+  --p-text: #2b2433;
+  --p-text-2: #4a4152;
+  --p-muted: #6f6579;
+  --p-muted2: #6f6579;
+  --p-faint: #9a8fa3;
+  --p-dim: #d8ccba;
+  --p-border: #ece2d2;
+  --p-track: #ece2d2;
+  --p-track2: #ece2d2;
+  --p-accent: #ff6b5e;
+  --p-accent-text: #d84f43;
+  --p-accent-text2: #be4438;
+  --p-on-accent: #ffffff;
+  --p-accent-bar: #ff6b5e;
+  --p-accent-bar2: #ff8a7e;
+  --p-accent-dim: #f5b8b1;
+  --p-accent-soft: #ffd9d3;
+  --p-accent-softer: #ffe3df;
+  --p-accent-soft-text: #b03a30;
+  --p-positive: #2fa676;
+  --p-positive-bar: #2fa676;
+  --p-warn: #e8823f;
+  --p-warn-text: #c2571f;
+  --p-chip-bg: #fdebc8;
+  --p-chip-text: #8a5a00;
+  --p-danger: #c93a30;
+  --p-danger-bar: #e05545;
+  --p-glow: rgba(255, 107, 94, 0.3);
+  --p-shadow: rgba(43, 36, 51, 0.18);
+  --p-scheme: light;
+}
+
+/* ── Ube Latte — the original dark violet (Nocturne's own palette) ───────── */
+.th-ube {
+  --p-bg: #161826;
+  --p-surface: #232532;
+  --p-text: #e9e9ed;
+  --p-text-2: #cfd3e5;
+  --p-muted: #9397ab;
+  --p-muted2: #b2b6ca;
+  --p-faint: #75798c;
+  --p-dim: #595d6c;
+  --p-border: color-mix(in srgb, #e9e9ed 16%, transparent);
+  --p-track: #292b31;
+  --p-track2: #3f424d;
+  --p-accent: #9184d9;
+  --p-accent-text: #9184d9;
+  --p-accent-text2: #d2cefd;
+  --p-on-accent: #161826;
+  --p-accent-bar: #968ae0;
+  --p-accent-bar2: #796cbf;
+  --p-accent-dim: #5d5294;
+  --p-accent-soft: #423a6a;
+  --p-accent-softer: #2b2741;
+  --p-accent-soft-text: #e7e5fe;
+  --p-positive: oklch(0.75 0.11 155);
+  --p-positive-bar: oklch(0.62 0.12 155);
+  --p-warn: oklch(0.62 0.13 60);
+  --p-warn-text: oklch(0.78 0.12 80);
+  --p-chip-bg: oklch(0.35 0.08 75 / 0.5);
+  --p-chip-text: oklch(0.82 0.12 80);
+  --p-danger: oklch(0.72 0.14 25);
+  --p-danger-bar: oklch(0.62 0.16 25);
+  --p-glow: oklch(0.66 0.125 289 / 0.35);
+  --p-shadow: rgba(0, 0, 0, 0.55);
+  --p-scheme: dark;
+}
+
+/* ── Mint Ink — dark green ───────────────────────────────────────────────── */
+.th-mint {
+  --p-bg: #0c1410;
+  --p-surface: #141f19;
+  --p-text: #e6f2ea;
+  --p-text-2: #c4d8cc;
+  --p-muted: #8fa89a;
+  --p-muted2: #a8bfb1;
+  --p-faint: #6e8578;
+  --p-dim: #3a4a40;
+  --p-border: #1d2a23;
+  --p-track: #1d2a23;
+  --p-track2: #24332b;
+  --p-accent: #3ecf8e;
+  --p-accent-text: #3ecf8e;
+  --p-accent-text2: #8fe8c0;
+  --p-on-accent: #06130c;
+  --p-accent-bar: #3ecf8e;
+  --p-accent-bar2: #2fa173;
+  --p-accent-dim: #1e5c41;
+  --p-accent-soft: #16382a;
+  --p-accent-softer: #102a20;
+  --p-accent-soft-text: #a9f0d2;
+  --p-positive: #3ecf8e;
+  --p-positive-bar: #2fa173;
+  --p-warn: #f2a464;
+  --p-warn-text: #f2a464;
+  --p-chip-bg: #332a12;
+  --p-chip-text: #f2c464;
+  --p-danger: #f27e6a;
+  --p-danger-bar: #d95f4c;
+  --p-glow: rgba(62, 207, 142, 0.3);
+  --p-shadow: rgba(0, 0, 0, 0.55);
+  --p-scheme: dark;
+}
+
+/* ── Acid Pop — dark citrus ──────────────────────────────────────────────── */
+.th-acid {
+  --p-bg: #101012;
+  --p-surface: #1a1a1d;
+  --p-text: #f2f2ee;
+  --p-text-2: #d6d6ce;
+  --p-muted: #a3a39a;
+  --p-muted2: #b8b8ae;
+  --p-faint: #7c7c74;
+  --p-dim: #3e3e42;
+  --p-border: #232326;
+  --p-track: #232326;
+  --p-track2: #2c2c30;
+  --p-accent: #d4f24b;
+  --p-accent-text: #d4f24b;
+  --p-accent-text2: #e4f98a;
+  --p-on-accent: #141405;
+  --p-accent-bar: #d4f24b;
+  --p-accent-bar2: #aecc33;
+  --p-accent-dim: #5f6e22;
+  --p-accent-soft: #32380f;
+  --p-accent-softer: #24280c;
+  --p-accent-soft-text: #edfbb0;
+  --p-positive: #7ed98c;
+  --p-positive-bar: #5fbf6f;
+  --p-warn: #f5a05a;
+  --p-warn-text: #f5a05a;
+  --p-chip-bg: #33280f;
+  --p-chip-text: #f5c05a;
+  --p-danger: #f0705c;
+  --p-danger-bar: #d5533f;
+  --p-glow: rgba(212, 242, 75, 0.3);
+  --p-shadow: rgba(0, 0, 0, 0.55);
+  --p-scheme: dark;
+}
