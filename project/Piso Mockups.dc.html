@@ -1,0 +1,911 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/nocturne-126fb093-1407-4342-a1b4-8562742bab6f/styles.css">
+<script src="_ds/nocturne-126fb093-1407-4342-a1b4-8562742bab6f/_ds_bundle.js"></script>
+<style>
+body{margin:0;background:#F0E9DC;color:#2B2433;font-family:var(--font-body)}
+a{color:var(--p-accent-text)}a:hover{color:var(--p-accent-text2)}
+.dv-turn{padding:40px 44px 32px;border-bottom:1px solid rgba(43,36,51,.12);scroll-margin-top:16px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:var(--p-accent);color:var(--p-on-accent);border-radius:4px;text-decoration:none}
+.dv-tname{font:600 13px/1.2 var(--font-heading);color:var(--p-text)}
+.dv-opts{display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px;scroll-margin-top:16px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(43,36,51,.08);color:#2B2433;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 var(--font-body);color:rgba(43,36,51,.6)}
+.dv-card{max-width:100%;background:var(--p-bg);color:var(--p-text);border:1px solid rgba(43,36,51,.1);border-radius:14px;box-shadow:0 14px 34px rgba(43,36,51,.18);overflow:hidden}
+.dv-opt:target .dv-oid{background:var(--p-accent);color:var(--p-on-accent)}
+.dv-next{margin:22px 0 0;font:12px/1.5 var(--font-body);color:rgba(43,36,51,.55)}
+
+:root,.th-sorbetes{--p-bg:#FAF5EC;--p-surface:#FFFFFF;--p-text:#2B2433;--p-text-2:#4A4152;--p-muted:#6F6579;--p-muted2:#6F6579;--p-faint:#9A8FA3;--p-dim:#D8CCBA;--p-border:#ECE2D2;--p-track:#ECE2D2;--p-track2:#ECE2D2;--p-accent:#FF6B5E;--p-accent-text:#D84F43;--p-accent-text2:#BE4438;--p-on-accent:#FFFFFF;--p-accent-bar:#FF6B5E;--p-accent-bar2:#FF8A7E;--p-accent-dim:#F5B8B1;--p-accent-soft:#FFD9D3;--p-accent-softer:#FFE3DF;--p-accent-soft-text:#B03A30;--p-positive:#2FA676;--p-positive-bar:#2FA676;--p-warn:#E8823F;--p-warn-text:#C2571F;--p-chip-bg:#FDEBC8;--p-chip-text:#8A5A00;--p-danger:#C93A30;--p-danger-bar:#E05545;--p-glow:rgba(255,107,94,.30)}
+.th-ube{--p-bg:#161826;--p-surface:#232532;--p-text:#e9e9ed;--p-text-2:#cfd3e5;--p-muted:#9397ab;--p-muted2:#b2b6ca;--p-faint:#75798c;--p-dim:#595d6c;--p-border:color-mix(in srgb,#e9e9ed 16%,transparent);--p-track:#292b31;--p-track2:#3f424d;--p-accent:#9184d9;--p-accent-text:#9184d9;--p-accent-text2:#d2cefd;--p-on-accent:#161826;--p-accent-bar:#968ae0;--p-accent-bar2:#796cbf;--p-accent-dim:#5d5294;--p-accent-soft:#423a6a;--p-accent-softer:#2b2741;--p-accent-soft-text:#e7e5fe;--p-positive:oklch(0.75 0.11 155);--p-positive-bar:oklch(0.62 0.12 155);--p-warn:oklch(0.62 0.13 60);--p-warn-text:oklch(0.78 0.12 80);--p-chip-bg:oklch(0.35 0.08 75 / .5);--p-chip-text:oklch(0.82 0.12 80);--p-danger:oklch(0.72 0.14 25);--p-danger-bar:oklch(0.62 0.16 25);--p-glow:oklch(0.66 0.125 289 / .35)}
+.th-mint{--p-bg:#0C1410;--p-surface:#141F19;--p-text:#E6F2EA;--p-text-2:#C4D8CC;--p-muted:#8FA89A;--p-muted2:#A8BFB1;--p-faint:#6E8578;--p-dim:#3A4A40;--p-border:#1D2A23;--p-track:#1D2A23;--p-track2:#24332B;--p-accent:#3ECF8E;--p-accent-text:#3ECF8E;--p-accent-text2:#8FE8C0;--p-on-accent:#06130C;--p-accent-bar:#3ECF8E;--p-accent-bar2:#2FA173;--p-accent-dim:#1E5C41;--p-accent-soft:#16382A;--p-accent-softer:#102A20;--p-accent-soft-text:#A9F0D2;--p-positive:#3ECF8E;--p-positive-bar:#2FA173;--p-warn:#F2A464;--p-warn-text:#F2A464;--p-chip-bg:#332A12;--p-chip-text:#F2C464;--p-danger:#F27E6A;--p-danger-bar:#D95F4C;--p-glow:rgba(62,207,142,.3)}
+.th-acid{--p-bg:#101012;--p-surface:#1A1A1D;--p-text:#F2F2EE;--p-text-2:#D6D6CE;--p-muted:#A3A39A;--p-muted2:#B8B8AE;--p-faint:#7C7C74;--p-dim:#3E3E42;--p-border:#232326;--p-track:#232326;--p-track2:#2C2C30;--p-accent:#D4F24B;--p-accent-text:#D4F24B;--p-accent-text2:#E4F98A;--p-on-accent:#141405;--p-accent-bar:#D4F24B;--p-accent-bar2:#AECC33;--p-accent-dim:#5F6E22;--p-accent-soft:#32380F;--p-accent-softer:#24280C;--p-accent-soft-text:#EDFBB0;--p-positive:#7ED98C;--p-positive-bar:#5FBF6F;--p-warn:#F5A05A;--p-warn-text:#F5A05A;--p-chip-bg:#33280F;--p-chip-text:#F5C05A;--p-danger:#F0705C;--p-danger-bar:#D5533F;--p-glow:rgba(212,242,75,.3)}
+</style>
+</helmet>
+<section class="dv-turn" id="t2">
+<div class="dv-thd"><a class="dv-tid" href="#t2">2</a><span class="dv-tname">Themes — one semantic token set, four skins. Turn 1 is re-themed to the new default "Sorbetes".</span></div>
+<div class="dv-opts">
+<div class="dv-opt" id="2a"><div class="dv-olabel"><a class="dv-oid" href="#2a">2a</a>Sorbetes — warm light (Default)</div>
+<div class="dv-card th-sorbetes" style="width:390px">
+<div style="display:flex;flex-direction:column;gap:18px;padding:22px 20px 0;min-height:760px">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <div style="font-family:var(--font-heading);font-weight:500;font-size:17px">Hi Dafhnee</div>
+    <div style="position:relative;width:34px;height:34px;display:grid;place-items:center;border:1px solid var(--p-border);border-radius:8px;color:var(--p-muted2)">
+      <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M221.8 175.94c-5.55-9.56-13.8-36.61-13.8-71.94a80 80 0 0 0-160 0c0 35.34-8.26 62.38-13.81 71.94A16 16 0 0 0 48 200h40.81a40 40 0 0 0 78.38 0H208a16 16 0 0 0 13.8-24.06ZM128 216a24 24 0 0 1-22.62-16h45.24A24 24 0 0 1 128 216Z"/></svg>
+      <span style="position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--p-accent)"></span>
+    </div>
+  </div>
+  <div>
+    <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-accent-text)">Safe to spend</div>
+    <div style="display:flex;align-items:baseline;gap:10px">
+      <div style="font-family:var(--font-heading);font-weight:500;font-size:44px;letter-spacing:-0.02em">₱5,240</div>
+      <a href="#1a" style="font-size:11px;color:var(--p-accent-text);text-decoration:none;border-bottom:1px dotted var(--p-accent-dim)">see the math</a>
+    </div>
+    <div style="font-size:12.5px;color:var(--p-muted);margin-top:2px">₱610/day until Aug 15 · payday in 9 days</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div style="background:var(--p-surface);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:2px">
+      <div style="font-size:10.5px;color:var(--p-muted)">Cash &amp; bank</div>
+      <div style="font-family:var(--font-heading);font-weight:500;font-size:19px">₱18,320</div>
+      <div style="font-size:10.5px;color:var(--p-faint)">+ ₱6,500 in savings</div>
+    </div>
+    <div style="background:var(--p-surface);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:2px">
+      <div style="font-size:10.5px;color:var(--p-muted)">You owe</div>
+      <div style="font-family:var(--font-heading);font-weight:500;font-size:19px">₱46,900</div>
+      <div style="font-size:10.5px;color:var(--p-positive);display:flex;align-items:center;gap:3px">▾ 2% this month</div>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <span style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted)">Due soon</span>
+      <a href="#1g" style="font-size:11px;color:var(--p-accent-text);text-decoration:none">see all</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--p-surface);border-radius:8px">
+      <span style="width:28px;height:28px;display:grid;place-items:center;border-radius:6px;background:var(--p-track);color:oklch(0.78 0.13 80);font-size:13px">⚡</span>
+      <span style="flex:1;font-size:13.5px">Meralco</span>
+      <span style="font-family:var(--font-heading);font-size:13.5px">₱2,500</span>
+      <span style="font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--p-chip-bg);color:var(--p-chip-text)">in 3 days</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--p-surface);border-radius:8px">
+      <span style="width:28px;height:28px;display:grid;place-items:center;border-radius:6px;background:var(--p-track);color:var(--p-accent-text2)">
+        <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M224 48H32a16 16 0 0 0-16 16v128a16 16 0 0 0 16 16h192a16 16 0 0 0 16-16V64a16 16 0 0 0-16-16Zm0 16v24H32V64Zm0 128H32v-88h192v88Z"/></svg>
+      </span>
+      <span style="flex:1;font-size:13.5px">BPI card minimum</span>
+      <span style="font-family:var(--font-heading);font-size:13.5px">₱3,200</span>
+      <span style="font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--p-track);color:var(--p-muted2)">in 5 days</span>
+    </div>
+    <div style="font-size:11px;color:var(--p-faint);padding-left:2px">▸ next 15 days: 4 bills, ₱9,800 total</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <span style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted)">This cycle's plan</span>
+      <span style="font-size:11px;color:var(--p-muted)">73% through</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <div style="display:flex;justify-content:space-between;font-size:12px"><span>Food</span><span style="color:var(--p-muted)">₱4,200 / ₱6,000</span></div>
+      <div style="height:6px;border-radius:3px;background:var(--p-track)"><div style="width:70%;height:100%;border-radius:3px;background:var(--p-accent-bar2)"></div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <div style="display:flex;justify-content:space-between;font-size:12px"><span>Transpo</span><span style="color:var(--p-muted)">₱1,500 / ₱2,500</span></div>
+      <div style="height:6px;border-radius:3px;background:var(--p-track)"><div style="width:60%;height:100%;border-radius:3px;background:var(--p-accent-bar2)"></div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <div style="display:flex;justify-content:space-between;font-size:12px"><span>Fun</span><span style="color:var(--p-warn-text)">over by ₱300</span></div>
+      <div style="height:6px;border-radius:3px;background:var(--p-track)"><div style="width:100%;height:100%;border-radius:3px;background:var(--p-warn)"></div></div>
+    </div>
+  </div>
+  <div style="font-size:12.5px;line-height:1.55;color:var(--p-muted2);font-style:italic;border-left:2px solid var(--p-accent-dim);padding-left:12px">"Bes, you spent 18% more on food kaysa sa plan. The meal plan was more of a suggestion lang pala."</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 64px 1fr 1fr;align-items:center;padding:8px 12px 14px;border-top:1px solid var(--p-border);margin-top:16px">
+  <div style="text-align:center;font-size:10px;color:var(--p-accent-text)">Home</div>
+  <div style="text-align:center;font-size:10px;color:var(--p-faint)">Money</div>
+  <div style="display:grid;place-items:center"><span style="width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--p-accent);border-radius:50%;color:var(--p-accent-text);font-size:22px;font-weight:300;margin-top:-18px;background:var(--p-bg);box-shadow:0 0 18px var(--p-glow)">+</span></div>
+  <div style="text-align:center;font-size:10px;color:var(--p-faint)">Debts</div>
+  <div style="text-align:center;font-size:10px;color:var(--p-faint)">Chat</div>
+</div>
+</div></div>
+<div class="dv-opt" id="2b"><div class="dv-olabel"><a class="dv-oid" href="#2b">2b</a>Ube Latte — the original dark violet</div>
+<div class="dv-card th-ube" style="width:390px">
+<div style="display:flex;flex-direction:column;gap:18px;padding:22px 20px 0;min-height:760px">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <div style="font-family:var(--font-heading);font-weight:500;font-size:17px">Hi Dafhnee</div>
+    <div style="position:relative;width:34px;height:34px;display:grid;place-items:center;border:1px solid var(--p-border);border-radius:8px;color:var(--p-muted2)">
+      <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M221.8 175.94c-5.55-9.56-13.8-36.61-13.8-71.94a80 80 0 0 0-160 0c0 35.34-8.26 62.38-13.81 71.94A16 16 0 0 0 48 200h40.81a40 40 0 0 0 78.38 0H208a16 16 0 0 0 13.8-24.06ZM128 216a24 24 0 0 1-22.62-16h45.24A24 24 0 0 1 128 216Z"/></svg>
+      <span style="position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--p-accent)"></span>
+    </div>
+  </div>
+  <div>
+    <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-accent-text)">Safe to spend</div>
+    <div style="display:flex;align-items:baseline;gap:10px">
+      <div style="font-family:var(--font-heading);font-weight:500;font-size:44px;letter-spacing:-0.02em">₱5,240</div>
+      <a href="#1a" style="font-size:11px;color:var(--p-accent-text);text-decoration:none;border-bottom:1px dotted var(--p-accent-dim)">see the math</a>
+    </div>
+    <div style="font-size:12.5px;color:var(--p-muted);margin-top:2px">₱610/day until Aug 15 · payday in 9 days</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div style="background:var(--p-surface);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:2px">
+      <div style="font-size:10.5px;color:var(--p-muted)">Cash &amp; bank</div>
+      <div style="font-family:var(--font-heading);font-weight:500;font-size:19px">₱18,320</div>
+      <div style="font-size:10.5px;color:var(--p-faint)">+ ₱6,500 in savings</div>
+    </div>
+    <div style="background:var(--p-surface);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:2px">
+      <div style="font-size:10.5px;color:var(--p-muted)">You owe</div>
+      <div style="font-family:var(--font-heading);font-weight:500;font-size:19px">₱46,900</div>
+      <div style="font-size:10.5px;color:var(--p-positive);display:flex;align-items:center;gap:3px">▾ 2% this month</div>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <span style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted)">Due soon</span>
+      <a href="#1g" style="font-size:11px;color:var(--p-accent-text);text-decoration:none">see all</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--p-surface);border-radius:8px">
+      <span style="width:28px;height:28px;display:grid;place-items:center;border-radius:6px;background:var(--p-track);color:oklch(0.78 0.13 80);font-size:13px">⚡</span>
+      <span style="flex:1;font-size:13.5px">Meralco</span>
+      <span style="font-family:var(--font-heading);font-size:13.5px">₱2,500</span>
+      <span style="font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--p-chip-bg);color:var(--p-chip-text)">in 3 days</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--p-surface);border-radius:8px">
+      <span style="width:28px;height:28px;display:grid;place-items:center;border-radius:6px;background:var(--p-track);color:var(--p-accent-text2)">
+        <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M224 48H32a16 16 0 0 0-16 16v128a16 16 0 0 0 16 16h192a16 16 0 0 0 16-16V64a16 16 0 0 0-16-16Zm0 16v24H32V64Zm0 128H32v-88h192v88Z"/></svg>
+      </span>
+      <span style="flex:1;font-size:13.5px">BPI card minimum</span>
+      <span style="font-family:var(--font-heading);font-size:13.5px">₱3,200</span>
+      <span style="font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--p-track);color:var(--p-muted2)">in 5 days</span>
+    </div>
+    <div style="font-size:11px;color:var(--p-faint);padding-left:2px">▸ next 15 days: 4 bills, ₱9,800 total</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <span style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted)">This cycle's plan</span>
+      <span style="font-size:11px;color:var(--p-muted)">73% through</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <div style="display:flex;justify-content:space-between;font-size:12px"><span>Food</span><span style="color:var(--p-muted)">₱4,200 / ₱6,000</span></div>
+      <div style="height:6px;border-radius:3px;background:var(--p-track)"><div style="width:70%;height:100%;border-radius:3px;background:var(--p-accent-bar2)"></div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <div style="display:flex;justify-content:space-between;font-size:12px"><span>Transpo</span><span style="color:var(--p-muted)">₱1,500 / ₱2,500</span></div>
+      <div style="height:6px;border-radius:3px;background:var(--p-track)"><div style="width:60%;height:100%;border-radius:3px;background:var(--p-accent-bar2)"></div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <div style="display:flex;justify-content:space-between;font-size:12px"><span>Fun</span><span style="color:var(--p-warn-text)">over by ₱300</span></div>
+      <div style="height:6px;border-radius:3px;background:var(--p-track)"><div style="width:100%;height:100%;border-radius:3px;background:var(--p-warn)"></div></div>
+    </div>
+  </div>
+  <div style="font-size:12.5px;line-height:1.55;color:var(--p-muted2);font-style:italic;border-left:2px solid var(--p-accent-dim);padding-left:12px">"Bes, you spent 18% more on food kaysa sa plan. The meal plan was more of a suggestion lang pala."</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 64px 1fr 1fr;align-items:center;padding:8px 12px 14px;border-top:1px solid var(--p-border);margin-top:16px">
+  <div style="text-align:center;font-size:10px;color:var(--p-accent-text)">Home</div>
+  <div style="text-align:center;font-size:10px;color:var(--p-faint)">Money</div>
+  <div style="display:grid;place-items:center"><span style="width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--p-accent);border-radius:50%;color:var(--p-accent-text);font-size:22px;font-weight:300;margin-top:-18px;background:var(--p-bg);box-shadow:0 0 18px var(--p-glow)">+</span></div>
+  <div style="text-align:center;font-size:10px;color:var(--p-faint)">Debts</div>
+  <div style="text-align:center;font-size:10px;color:var(--p-faint)">Chat</div>
+</div>
+</div></div>
+<div class="dv-opt" id="2c"><div class="dv-olabel"><a class="dv-oid" href="#2c">2c</a>Mint Ink — dark green</div>
+<div class="dv-card th-mint" style="width:390px">
+<div style="display:flex;flex-direction:column;gap:18px;padding:22px 20px 0;min-height:760px">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <div style="font-family:var(--font-heading);font-weight:500;font-size:17px">Hi Dafhnee</div>
+    <div style="position:relative;width:34px;height:34px;display:grid;place-items:center;border:1px solid var(--p-border);border-radius:8px;color:var(--p-muted2)">
+      <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M221.8 175.94c-5.55-9.56-13.8-36.61-13.8-71.94a80 80 0 0 0-160 0c0 35.34-8.26 62.38-13.81 71.94A16 16 0 0 0 48 200h40.81a40 40 0 0 0 78.38 0H208a16 16 0 0 0 13.8-24.06ZM128 216a24 24 0 0 1-22.62-16h45.24A24 24 0 0 1 128 216Z"/></svg>
+      <span style="position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--p-accent)"></span>
+    </div>
+  </div>
+  <div>
+    <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-accent-text)">Safe to spend</div>
+    <div style="display:flex;align-items:baseline;gap:10px">
+      <div style="font-family:var(--font-heading);font-weight:500;font-size:44px;letter-spacing:-0.02em">₱5,240</div>
+      <a href="#1a" style="font-size:11px;color:var(--p-accent-text);text-decoration:none;border-bottom:1px dotted var(--p-accent-dim)">see the math</a>
+    </div>
+    <div style="font-size:12.5px;color:var(--p-muted);margin-top:2px">₱610/day until Aug 15 · payday in 9 days</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div style="background:var(--p-surface);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:2px">
+      <div style="font-size:10.5px;color:var(--p-muted)">Cash &amp; bank</div>
+      <div style="font-family:var(--font-heading);font-weight:500;font-size:19px">₱18,320</div>
+      <div style="font-size:10.5px;color:var(--p-faint)">+ ₱6,500 in savings</div>
+    </div>
+    <div style="background:var(--p-surface);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:2px">
+      <div style="font-size:10.5px;color:var(--p-muted)">You owe</div>
+      <div style="font-family:var(--font-heading);font-weight:500;font-size:19px">₱46,900</div>
+      <div style="font-size:10.5px;color:var(--p-positive);display:flex;align-items:center;gap:3px">▾ 2% this month</div>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <span style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted)">Due soon</span>
+      <a href="#1g" style="font-size:11px;color:var(--p-accent-text);text-decoration:none">see all</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--p-surface);border-radius:8px">
+      <span style="width:28px;height:28px;display:grid;place-items:center;border-radius:6px;background:var(--p-track);color:oklch(0.78 0.13 80);font-size:13px">⚡</span>
+      <span style="flex:1;font-size:13.5px">Meralco</span>
+      <span style="font-family:var(--font-heading);font-size:13.5px">₱2,500</span>
+      <span style="font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--p-chip-bg);color:var(--p-chip-text)">in 3 days</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--p-surface);border-radius:8px">
+      <span style="width:28px;height:28px;display:grid;place-items:center;border-radius:6px;background:var(--p-track);color:var(--p-accent-text2)">
+        <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M224 48H32a16 16 0 0 0-16 16v128a16 16 0 0 0 16 16h192a16 16 0 0 0 16-16V64a16 16 0 0 0-16-16Zm0 16v24H32V64Zm0 128H32v-88h192v88Z"/></svg>
+      </span>
+      <span style="flex:1;font-size:13.5px">BPI card minimum</span>
+      <span style="font-family:var(--font-heading);font-size:13.5px">₱3,200</span>
+      <span style="font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--p-track);color:var(--p-muted2)">in 5 days</span>
+    </div>
+    <div style="font-size:11px;color:var(--p-faint);padding-left:2px">▸ next 15 days: 4 bills, ₱9,800 total</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <span style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted)">This cycle's plan</span>
+      <span style="font-size:11px;color:var(--p-muted)">73% through</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <div style="display:flex;justify-content:space-between;font-size:12px"><span>Food</span><span style="color:var(--p-muted)">₱4,200 / ₱6,000</span></div>
+      <div style="height:6px;border-radius:3px;background:var(--p-track)"><div style="width:70%;height:100%;border-radius:3px;background:var(--p-accent-bar2)"></div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <div style="display:flex;justify-content:space-between;font-size:12px"><span>Transpo</span><span style="color:var(--p-muted)">₱1,500 / ₱2,500</span></div>
+      <div style="height:6px;border-radius:3px;background:var(--p-track)"><div style="width:60%;height:100%;border-radius:3px;background:var(--p-accent-bar2)"></div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <div style="display:flex;justify-content:space-between;font-size:12px"><span>Fun</span><span style="color:var(--p-warn-text)">over by ₱300</span></div>
+      <div style="height:6px;border-radius:3px;background:var(--p-track)"><div style="width:100%;height:100%;border-radius:3px;background:var(--p-warn)"></div></div>
+    </div>
+  </div>
+  <div style="font-size:12.5px;line-height:1.55;color:var(--p-muted2);font-style:italic;border-left:2px solid var(--p-accent-dim);padding-left:12px">"Bes, you spent 18% more on food kaysa sa plan. The meal plan was more of a suggestion lang pala."</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 64px 1fr 1fr;align-items:center;padding:8px 12px 14px;border-top:1px solid var(--p-border);margin-top:16px">
+  <div style="text-align:center;font-size:10px;color:var(--p-accent-text)">Home</div>
+  <div style="text-align:center;font-size:10px;color:var(--p-faint)">Money</div>
+  <div style="display:grid;place-items:center"><span style="width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--p-accent);border-radius:50%;color:var(--p-accent-text);font-size:22px;font-weight:300;margin-top:-18px;background:var(--p-bg);box-shadow:0 0 18px var(--p-glow)">+</span></div>
+  <div style="text-align:center;font-size:10px;color:var(--p-faint)">Debts</div>
+  <div style="text-align:center;font-size:10px;color:var(--p-faint)">Chat</div>
+</div>
+</div></div>
+<div class="dv-opt" id="2d"><div class="dv-olabel"><a class="dv-oid" href="#2d">2d</a>Acid Pop — dark citrus</div>
+<div class="dv-card th-acid" style="width:390px">
+<div style="display:flex;flex-direction:column;gap:18px;padding:22px 20px 0;min-height:760px">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <div style="font-family:var(--font-heading);font-weight:500;font-size:17px">Hi Dafhnee</div>
+    <div style="position:relative;width:34px;height:34px;display:grid;place-items:center;border:1px solid var(--p-border);border-radius:8px;color:var(--p-muted2)">
+      <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M221.8 175.94c-5.55-9.56-13.8-36.61-13.8-71.94a80 80 0 0 0-160 0c0 35.34-8.26 62.38-13.81 71.94A16 16 0 0 0 48 200h40.81a40 40 0 0 0 78.38 0H208a16 16 0 0 0 13.8-24.06ZM128 216a24 24 0 0 1-22.62-16h45.24A24 24 0 0 1 128 216Z"/></svg>
+      <span style="position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--p-accent)"></span>
+    </div>
+  </div>
+  <div>
+    <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-accent-text)">Safe to spend</div>
+    <div style="display:flex;align-items:baseline;gap:10px">
+      <div style="font-family:var(--font-heading);font-weight:500;font-size:44px;letter-spacing:-0.02em">₱5,240</div>
+      <a href="#1a" style="font-size:11px;color:var(--p-accent-text);text-decoration:none;border-bottom:1px dotted var(--p-accent-dim)">see the math</a>
+    </div>
+    <div style="font-size:12.5px;color:var(--p-muted);margin-top:2px">₱610/day until Aug 15 · payday in 9 days</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div style="background:var(--p-surface);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:2px">
+      <div style="font-size:10.5px;color:var(--p-muted)">Cash &amp; bank</div>
+      <div style="font-family:var(--font-heading);font-weight:500;font-size:19px">₱18,320</div>
+      <div style="font-size:10.5px;color:var(--p-faint)">+ ₱6,500 in savings</div>
+    </div>
+    <div style="background:var(--p-surface);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:2px">
+      <div style="font-size:10.5px;color:var(--p-muted)">You owe</div>
+      <div style="font-family:var(--font-heading);font-weight:500;font-size:19px">₱46,900</div>
+      <div style="font-size:10.5px;color:var(--p-positive);display:flex;align-items:center;gap:3px">▾ 2% this month</div>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <span style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted)">Due soon</span>
+      <a href="#1g" style="font-size:11px;color:var(--p-accent-text);text-decoration:none">see all</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--p-surface);border-radius:8px">
+      <span style="width:28px;height:28px;display:grid;place-items:center;border-radius:6px;background:var(--p-track);color:oklch(0.78 0.13 80);font-size:13px">⚡</span>
+      <span style="flex:1;font-size:13.5px">Meralco</span>
+      <span style="font-family:var(--font-heading);font-size:13.5px">₱2,500</span>
+      <span style="font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--p-chip-bg);color:var(--p-chip-text)">in 3 days</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--p-surface);border-radius:8px">
+      <span style="width:28px;height:28px;display:grid;place-items:center;border-radius:6px;background:var(--p-track);color:var(--p-accent-text2)">
+        <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M224 48H32a16 16 0 0 0-16 16v128a16 16 0 0 0 16 16h192a16 16 0 0 0 16-16V64a16 16 0 0 0-16-16Zm0 16v24H32V64Zm0 128H32v-88h192v88Z"/></svg>
+      </span>
+      <span style="flex:1;font-size:13.5px">BPI card minimum</span>
+      <span style="font-family:var(--font-heading);font-size:13.5px">₱3,200</span>
+      <span style="font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--p-track);color:var(--p-muted2)">in 5 days</span>
+    </div>
+    <div style="font-size:11px;color:var(--p-faint);padding-left:2px">▸ next 15 days: 4 bills, ₱9,800 total</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <span style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted)">This cycle's plan</span>
+      <span style="font-size:11px;color:var(--p-muted)">73% through</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <div style="display:flex;justify-content:space-between;font-size:12px"><span>Food</span><span style="color:var(--p-muted)">₱4,200 / ₱6,000</span></div>
+      <div style="height:6px;border-radius:3px;background:var(--p-track)"><div style="width:70%;height:100%;border-radius:3px;background:var(--p-accent-bar2)"></div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <div style="display:flex;justify-content:space-between;font-size:12px"><span>Transpo</span><span style="color:var(--p-muted)">₱1,500 / ₱2,500</span></div>
+      <div style="height:6px;border-radius:3px;background:var(--p-track)"><div style="width:60%;height:100%;border-radius:3px;background:var(--p-accent-bar2)"></div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <div style="display:flex;justify-content:space-between;font-size:12px"><span>Fun</span><span style="color:var(--p-warn-text)">over by ₱300</span></div>
+      <div style="height:6px;border-radius:3px;background:var(--p-track)"><div style="width:100%;height:100%;border-radius:3px;background:var(--p-warn)"></div></div>
+    </div>
+  </div>
+  <div style="font-size:12.5px;line-height:1.55;color:var(--p-muted2);font-style:italic;border-left:2px solid var(--p-accent-dim);padding-left:12px">"Bes, you spent 18% more on food kaysa sa plan. The meal plan was more of a suggestion lang pala."</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 64px 1fr 1fr;align-items:center;padding:8px 12px 14px;border-top:1px solid var(--p-border);margin-top:16px">
+  <div style="text-align:center;font-size:10px;color:var(--p-accent-text)">Home</div>
+  <div style="text-align:center;font-size:10px;color:var(--p-faint)">Money</div>
+  <div style="display:grid;place-items:center"><span style="width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--p-accent);border-radius:50%;color:var(--p-accent-text);font-size:22px;font-weight:300;margin-top:-18px;background:var(--p-bg);box-shadow:0 0 18px var(--p-glow)">+</span></div>
+  <div style="text-align:center;font-size:10px;color:var(--p-faint)">Debts</div>
+  <div style="text-align:center;font-size:10px;color:var(--p-faint)">Chat</div>
+</div>
+</div></div>
+<div class="dv-opt" id="2e"><div class="dv-olabel"><a class="dv-oid" href="#2e">2e</a>Settings → Appearance — theme picker</div>
+<div class="dv-card th-sorbetes" style="width:390px">
+<div style="display:flex;flex-direction:column;gap:16px;padding:22px 20px 24px;min-height:640px"><div style="display:flex;align-items:center;gap:10px"><span style="font-size:13px;color:var(--p-muted)">← Settings</span></div><div><div style="font-family:var(--font-heading);font-weight:500;font-size:24px">Appearance</div><div style="font-size:12px;color:var(--p-muted);margin-top:4px">Same app, different sorbetes flavor. Bes stays sarcastic in all of them.</div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><div style="display:flex;flex-direction:column;gap:9px;background:var(--p-surface);border-radius:10px;padding:12px;box-shadow:inset 0 0 0 1.5px var(--p-accent)"><div style="height:76px;border-radius:8px;background:#FAF5EC;border:1px solid #ECE2D2;padding:9px;display:flex;flex-direction:column;gap:6px"><div style="width:44%;height:7px;border-radius:4px;background:#FF6B5E"></div><div style="background:#FFFFFF;border-radius:6px;padding:7px;display:flex;flex-direction:column;gap:5px;box-shadow:0 1px 2px rgba(43,36,51,.08)"><div style="width:68%;height:5px;border-radius:3px;background:#2B2433"></div><div style="width:42%;height:5px;border-radius:3px;background:#ECE2D2"></div></div></div><div style="display:flex;align-items:center;gap:8px"><span style="width:14px;height:14px;flex:none;border-radius:50%;border:1.5px solid var(--p-accent);background:var(--p-accent);box-shadow:inset 0 0 0 3px var(--p-surface)"></span><div style="display:flex;flex-direction:column"><span style="font-size:13px">Sorbetes</span><span style="font-size:10px;color:var(--p-faint)">warm light</span></div><span style="margin-left:auto;font-size:9.5px;padding:2px 8px;border-radius:5px;background:var(--p-accent);color:var(--p-on-accent)">Default</span></div></div><div style="display:flex;flex-direction:column;gap:9px;background:var(--p-surface);border-radius:10px;padding:12px;box-shadow:inset 0 0 0 1px var(--p-border)"><div style="height:76px;border-radius:8px;background:#161826;border:1px solid #161826;padding:9px;display:flex;flex-direction:column;gap:6px"><div style="width:44%;height:7px;border-radius:4px;background:#9184d9"></div><div style="background:#232532;border-radius:6px;padding:7px;display:flex;flex-direction:column;gap:5px"><div style="width:68%;height:5px;border-radius:3px;background:#e9e9ed"></div><div style="width:42%;height:5px;border-radius:3px;background:#3f424d"></div></div></div><div style="display:flex;align-items:center;gap:8px"><span style="width:14px;height:14px;flex:none;border-radius:50%;border:1.5px solid var(--p-border)"></span><div style="display:flex;flex-direction:column"><span style="font-size:13px">Ube Latte</span><span style="font-size:10px;color:var(--p-faint)">dark violet</span></div></div></div><div style="display:flex;flex-direction:column;gap:9px;background:var(--p-surface);border-radius:10px;padding:12px;box-shadow:inset 0 0 0 1px var(--p-border)"><div style="height:76px;border-radius:8px;background:#0C1410;border:1px solid #0C1410;padding:9px;display:flex;flex-direction:column;gap:6px"><div style="width:44%;height:7px;border-radius:4px;background:#3ECF8E"></div><div style="background:#141F19;border-radius:6px;padding:7px;display:flex;flex-direction:column;gap:5px"><div style="width:68%;height:5px;border-radius:3px;background:#E6F2EA"></div><div style="width:42%;height:5px;border-radius:3px;background:#24332B"></div></div></div><div style="display:flex;align-items:center;gap:8px"><span style="width:14px;height:14px;flex:none;border-radius:50%;border:1.5px solid var(--p-border)"></span><div style="display:flex;flex-direction:column"><span style="font-size:13px">Mint Ink</span><span style="font-size:10px;color:var(--p-faint)">dark green</span></div></div></div><div style="display:flex;flex-direction:column;gap:9px;background:var(--p-surface);border-radius:10px;padding:12px;box-shadow:inset 0 0 0 1px var(--p-border)"><div style="height:76px;border-radius:8px;background:#101012;border:1px solid #101012;padding:9px;display:flex;flex-direction:column;gap:6px"><div style="width:44%;height:7px;border-radius:4px;background:#D4F24B"></div><div style="background:#1A1A1D;border-radius:6px;padding:7px;display:flex;flex-direction:column;gap:5px"><div style="width:68%;height:5px;border-radius:3px;background:#F2F2EE"></div><div style="width:42%;height:5px;border-radius:3px;background:#2C2C30"></div></div></div><div style="display:flex;align-items:center;gap:8px"><span style="width:14px;height:14px;flex:none;border-radius:50%;border:1.5px solid var(--p-border)"></span><div style="display:flex;flex-direction:column"><span style="font-size:13px">Acid Pop</span><span style="font-size:10px;color:var(--p-faint)">dark citrus</span></div></div></div></div><div style="background:var(--p-surface);border-radius:8px;padding:11px 14px;display:flex;align-items:center;justify-content:space-between;box-shadow:inset 0 0 0 1px var(--p-border)"><div style="display:flex;flex-direction:column"><span style="font-size:13px">Match system light/dark</span><span style="font-size:10.5px;color:var(--p-faint)">Sorbetes by day, Ube Latte by night</span></div><span style="width:38px;height:22px;border-radius:11px;background:var(--p-track);position:relative"><span style="position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:var(--p-surface);box-shadow:0 1px 2px rgba(43,36,51,.2)"></span></span></div></div>
+</div></div>
+</div>
+<p class="dv-next">Try next: "make Mint Ink’s accent softer" · "apply Acid Pop to the chat screen <a class="dv-oid" href="#1f">1f</a>" · "wire up the prototype with the theme switcher"</p>
+</section>
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Piso — 8 core screens, Nocturne, persona "Dafhnee" (semi-monthly salary ₱25,000, 4 debts, ₱46,900 owed)</span></div>
+<p style="margin:-8px 0 20px;max-width:760px;font-size:12px;line-height:1.6;color:rgba(43,36,51,.6)">Assumptions: mobile-first 390px frames per the blueprint's §18 wireframes; nav = Home · Money · (+) · Debts · Chat; sass level Balanced; semantic green/amber/red derived in oklch to sit with the blurple accent; charts kept to bars + ring only. <a class="dv-oid" href="#1j">1j</a> shows the desktop translation. Everything is static here — pick the ones to wire up next.</p>
+<div class="dv-opts">
+
+<!-- 1a DASHBOARD -->
+<div class="dv-opt" id="1a"><div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Home / Dashboard — hero + due strip + envelopes</div>
+<div class="dv-card th-sorbetes" style="width:390px">
+<div style="display:flex;flex-direction:column;gap:18px;padding:22px 20px 0;min-height:760px">
+  <div style="display:flex;align-items:center;justify-content:space-between">
+    <div style="font-family:var(--font-heading);font-weight:500;font-size:17px">Hi Dafhnee</div>
+    <div style="position:relative;width:34px;height:34px;display:grid;place-items:center;border:1px solid var(--p-border);border-radius:8px;color:var(--p-muted2)">
+      <svg width="16" height="16" viewBox="0 0 256 256" fill="currentColor"><path d="M221.8 175.94c-5.55-9.56-13.8-36.61-13.8-71.94a80 80 0 0 0-160 0c0 35.34-8.26 62.38-13.81 71.94A16 16 0 0 0 48 200h40.81a40 40 0 0 0 78.38 0H208a16 16 0 0 0 13.8-24.06ZM128 216a24 24 0 0 1-22.62-16h45.24A24 24 0 0 1 128 216Z"/></svg>
+      <span style="position:absolute;top:6px;right:6px;width:7px;height:7px;border-radius:50%;background:var(--p-accent)"></span>
+    </div>
+  </div>
+  <div>
+    <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-accent-text)">Safe to spend</div>
+    <div style="display:flex;align-items:baseline;gap:10px">
+      <div style="font-family:var(--font-heading);font-weight:500;font-size:44px;letter-spacing:-0.02em">₱5,240</div>
+      <a href="#1a" style="font-size:11px;color:var(--p-accent-text);text-decoration:none;border-bottom:1px dotted var(--p-accent-dim)">see the math</a>
+    </div>
+    <div style="font-size:12.5px;color:var(--p-muted);margin-top:2px">₱610/day until Aug 15 · payday in 9 days</div>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+    <div style="background:var(--p-surface);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:2px">
+      <div style="font-size:10.5px;color:var(--p-muted)">Cash &amp; bank</div>
+      <div style="font-family:var(--font-heading);font-weight:500;font-size:19px">₱18,320</div>
+      <div style="font-size:10.5px;color:var(--p-faint)">+ ₱6,500 in savings</div>
+    </div>
+    <div style="background:var(--p-surface);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:2px">
+      <div style="font-size:10.5px;color:var(--p-muted)">You owe</div>
+      <div style="font-family:var(--font-heading);font-weight:500;font-size:19px">₱46,900</div>
+      <div style="font-size:10.5px;color:var(--p-positive);display:flex;align-items:center;gap:3px">▾ 2% this month</div>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <span style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted)">Due soon</span>
+      <a href="#1g" style="font-size:11px;color:var(--p-accent-text);text-decoration:none">see all</a>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--p-surface);border-radius:8px">
+      <span style="width:28px;height:28px;display:grid;place-items:center;border-radius:6px;background:var(--p-track);color:oklch(0.78 0.13 80);font-size:13px">⚡</span>
+      <span style="flex:1;font-size:13.5px">Meralco</span>
+      <span style="font-family:var(--font-heading);font-size:13.5px">₱2,500</span>
+      <span style="font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--p-chip-bg);color:var(--p-chip-text)">in 3 days</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--p-surface);border-radius:8px">
+      <span style="width:28px;height:28px;display:grid;place-items:center;border-radius:6px;background:var(--p-track);color:var(--p-accent-text2)">
+        <svg width="14" height="14" viewBox="0 0 256 256" fill="currentColor"><path d="M224 48H32a16 16 0 0 0-16 16v128a16 16 0 0 0 16 16h192a16 16 0 0 0 16-16V64a16 16 0 0 0-16-16Zm0 16v24H32V64Zm0 128H32v-88h192v88Z"/></svg>
+      </span>
+      <span style="flex:1;font-size:13.5px">BPI card minimum</span>
+      <span style="font-family:var(--font-heading);font-size:13.5px">₱3,200</span>
+      <span style="font-size:10.5px;padding:2px 8px;border-radius:6px;background:var(--p-track);color:var(--p-muted2)">in 5 days</span>
+    </div>
+    <div style="font-size:11px;color:var(--p-faint);padding-left:2px">▸ next 15 days: 4 bills, ₱9,800 total</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;justify-content:space-between;align-items:baseline">
+      <span style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted)">This cycle's plan</span>
+      <span style="font-size:11px;color:var(--p-muted)">73% through</span>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <div style="display:flex;justify-content:space-between;font-size:12px"><span>Food</span><span style="color:var(--p-muted)">₱4,200 / ₱6,000</span></div>
+      <div style="height:6px;border-radius:3px;background:var(--p-track)"><div style="width:70%;height:100%;border-radius:3px;background:var(--p-accent-bar2)"></div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <div style="display:flex;justify-content:space-between;font-size:12px"><span>Transpo</span><span style="color:var(--p-muted)">₱1,500 / ₱2,500</span></div>
+      <div style="height:6px;border-radius:3px;background:var(--p-track)"><div style="width:60%;height:100%;border-radius:3px;background:var(--p-accent-bar2)"></div></div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:3px">
+      <div style="display:flex;justify-content:space-between;font-size:12px"><span>Fun</span><span style="color:var(--p-warn-text)">over by ₱300</span></div>
+      <div style="height:6px;border-radius:3px;background:var(--p-track)"><div style="width:100%;height:100%;border-radius:3px;background:var(--p-warn)"></div></div>
+    </div>
+  </div>
+  <div style="font-size:12.5px;line-height:1.55;color:var(--p-muted2);font-style:italic;border-left:2px solid var(--p-accent-dim);padding-left:12px">"Bes, you spent 18% more on food kaysa sa plan. The meal plan was more of a suggestion lang pala."</div>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr 64px 1fr 1fr;align-items:center;padding:8px 12px 14px;border-top:1px solid var(--p-border);margin-top:16px">
+  <div style="text-align:center;font-size:10px;color:var(--p-accent-text)">Home</div>
+  <div style="text-align:center;font-size:10px;color:var(--p-faint)">Money</div>
+  <div style="display:grid;place-items:center"><span style="width:44px;height:44px;display:grid;place-items:center;border:1px solid var(--p-accent);border-radius:50%;color:var(--p-accent-text);font-size:22px;font-weight:300;margin-top:-18px;background:var(--p-bg);box-shadow:0 0 18px var(--p-glow)">+</span></div>
+  <div style="text-align:center;font-size:10px;color:var(--p-faint)">Debts</div>
+  <div style="text-align:center;font-size:10px;color:var(--p-faint)">Chat</div>
+</div>
+</div></div>
+
+<!-- 1b QUICK ADD -->
+<div class="dv-opt" id="1b"><div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Quick-Add sheet — 3 taps, keypad-first</div>
+<div class="dv-card th-sorbetes" style="width:390px">
+<div style="position:relative;min-height:820px;display:flex;flex-direction:column;justify-content:flex-end;background:linear-gradient(color-mix(in srgb,var(--p-track) 60%,transparent),color-mix(in srgb,var(--p-track) 60%,transparent)),var(--p-bg)">
+  <div style="background:var(--p-surface);border-radius:14px 14px 0 0;box-shadow:var(--shadow-lg);padding:14px 18px 20px;display:flex;flex-direction:column;gap:14px">
+    <div style="width:36px;height:4px;border-radius:2px;background:var(--p-dim);margin:0 auto"></div>
+    <div style="display:flex;border:1px solid var(--p-border);border-radius:8px;overflow:hidden;font-size:12px;text-align:center">
+      <div style="flex:1;padding:7px 0;color:var(--p-accent-text);box-shadow:inset 0 0 0 1px var(--p-accent)">Expense</div>
+      <div style="flex:1;padding:7px 0;border-left:1px solid var(--p-border);color:var(--p-muted)">Income</div>
+      <div style="flex:1;padding:7px 0;border-left:1px solid var(--p-border);color:var(--p-muted)">Transfer</div>
+      <div style="flex:1;padding:7px 0;border-left:1px solid var(--p-border);color:var(--p-muted)">Pay debt</div>
+    </div>
+    <div style="text-align:center;padding:6px 0 2px">
+      <span style="font-size:20px;color:var(--p-faint);vertical-align:16px">₱</span>
+      <span style="font-family:var(--font-heading);font-weight:500;font-size:52px;letter-spacing:-0.02em">180</span>
+      <span style="display:inline-block;width:2px;height:40px;background:var(--p-accent);vertical-align:-4px;margin-left:2px"></span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 0;border-radius:8px;background:var(--p-accent-softer);box-shadow:inset 0 0 0 1px var(--p-accent);font-size:11px;color:var(--p-accent-soft-text)"><span style="font-size:16px">🍜</span>Food</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 0;border-radius:8px;background:var(--p-track);font-size:11px;color:var(--p-muted2)"><span style="font-size:16px">🚌</span>Transpo</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 0;border-radius:8px;background:var(--p-track);font-size:11px;color:var(--p-muted2)"><span style="font-size:16px">🛒</span>Grocery</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 0;border-radius:8px;background:var(--p-track);font-size:11px;color:var(--p-muted2)"><span style="font-size:16px">🎬</span>Fun</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 0;border-radius:8px;background:var(--p-track);font-size:11px;color:var(--p-muted2)"><span style="font-size:16px">💡</span>Utilities</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 0;border-radius:8px;background:var(--p-track);font-size:11px;color:var(--p-muted2)"><span style="font-size:16px">🏠</span>Home</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 0;border-radius:8px;background:var(--p-track);font-size:11px;color:var(--p-muted2)"><span style="font-size:16px">👪</span>Family</div>
+      <div style="display:flex;flex-direction:column;align-items:center;gap:4px;padding:9px 0;border-radius:8px;background:var(--p-track);font-size:11px;color:var(--p-muted)">•••<span>more</span></div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <span style="font-size:11.5px;padding:5px 12px;border-radius:14px;border:1px solid var(--p-accent);color:var(--p-accent-text)">GCash</span>
+      <span style="font-size:11.5px;padding:5px 12px;border-radius:14px;border:1px solid var(--p-border);color:var(--p-muted)">BPI Payroll</span>
+      <span style="font-size:11.5px;padding:5px 12px;border-radius:14px;border:1px solid var(--p-border);color:var(--p-muted)">Wallet cash</span>
+    </div>
+    <div style="font-size:11.5px;color:var(--p-faint)">+ note · date (today)</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:6px;font-family:var(--font-heading);font-size:20px;text-align:center;color:var(--p-text-2)">
+      <div style="padding:11px 0">1</div><div style="padding:11px 0">2</div><div style="padding:11px 0">3</div>
+      <div style="padding:11px 0">4</div><div style="padding:11px 0">5</div><div style="padding:11px 0">6</div>
+      <div style="padding:11px 0">7</div><div style="padding:11px 0">8</div><div style="padding:11px 0">9</div>
+      <div style="padding:11px 0;font-size:15px;color:var(--p-faint)">.</div><div style="padding:11px 0">0</div><div style="padding:11px 0;font-size:15px;color:var(--p-faint)">⌫</div>
+    </div>
+    <div style="text-align:center;padding:12px 0;border:1px solid var(--p-accent);border-radius:8px;color:var(--p-accent-text);font-family:var(--font-heading);font-size:15px">Save — 2 taps so far</div>
+  </div>
+</div>
+</div></div>
+
+<!-- 1c PLANNER -->
+<div class="dv-opt" id="1c"><div class="dv-olabel"><a class="dv-oid" href="#1c">1c</a>Allocation planner — envelopes + live status bar</div>
+<div class="dv-card th-sorbetes" style="width:390px">
+<div style="display:flex;flex-direction:column;min-height:800px">
+  <div style="padding:22px 20px 14px;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <div style="font-size:13px;color:var(--p-muted)">← Plan this salary</div>
+      <div style="display:flex;gap:6px">
+        <span style="font-size:11px;padding:4px 10px;border:1px solid var(--p-border);border-radius:6px;color:var(--p-muted2)">Use template ▾</span>
+        <span style="font-size:11px;padding:4px 10px;border:1px solid var(--p-accent);border-radius:6px;color:var(--p-accent-text)">Suggest for me</span>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-accent-text)">July 30 salary</div>
+      <div style="font-family:var(--font-heading);font-weight:500;font-size:34px">₱25,000</div>
+      <div style="font-size:11.5px;color:var(--p-muted)">covers Jul 30 – Aug 14 · 16 days</div>
+    </div>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:8px;padding:4px 20px 16px">
+    <div style="display:flex;align-items:center;gap:12px;background:var(--p-surface);border-radius:8px;padding:11px 12px">
+      <span style="width:30px;height:30px;display:grid;place-items:center;border-radius:6px;background:var(--p-track);font-size:14px">🏠</span>
+      <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+        <div style="display:flex;justify-content:space-between;font-size:13px"><span>Rent</span><span style="font-size:10px;color:var(--p-faint);align-self:center">essential</span></div>
+        <div style="height:4px;border-radius:2px;background:var(--p-track);position:relative"><div style="position:absolute;inset:0;width:100%;border-radius:2px;background:repeating-linear-gradient(90deg,var(--p-track2) 0 4px,transparent 4px 8px)"></div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="width:22px;height:22px;display:grid;place-items:center;border:1px solid var(--p-border);border-radius:6px;color:var(--p-muted);font-size:13px">−</span>
+        <span style="font-family:var(--font-heading);font-size:14px;min-width:56px;text-align:right">₱8,000</span>
+        <span style="width:22px;height:22px;display:grid;place-items:center;border:1px solid var(--p-border);border-radius:6px;color:var(--p-muted);font-size:13px">+</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:var(--p-surface);border-radius:8px;padding:11px 12px">
+      <span style="width:30px;height:30px;display:grid;place-items:center;border-radius:6px;background:var(--p-track);font-size:14px">🍜</span>
+      <div style="flex:1;display:flex;flex-direction:column;gap:4px">
+        <div style="display:flex;justify-content:space-between;font-size:13px"><span>Food</span><span style="font-size:10px;color:var(--p-faint);align-self:center">usual ₱5,800</span></div>
+        <div style="height:4px;border-radius:2px;background:var(--p-track)"><div style="width:92%;height:100%;border-radius:2px;background:var(--p-dim)"></div></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="width:22px;height:22px;display:grid;place-items:center;border:1px solid var(--p-border);border-radius:6px;color:var(--p-muted);font-size:13px">−</span>
+        <span style="font-family:var(--font-heading);font-size:14px;min-width:56px;text-align:right">₱6,000</span>
+        <span style="width:22px;height:22px;display:grid;place-items:center;border:1px solid var(--p-accent);border-radius:6px;color:var(--p-accent-text);font-size:13px">+</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:var(--p-surface);border-radius:8px;padding:11px 12px">
+      <span style="width:30px;height:30px;display:grid;place-items:center;border-radius:6px;background:var(--p-track);font-size:14px">💳</span>
+      <div style="flex:1;display:flex;flex-direction:column;gap:2px">
+        <div style="font-size:13px">BPI card minimum</div>
+        <div style="font-size:10px;color:var(--p-faint)">due Aug 5 · funded fully</div>
+      </div>
+      <span style="font-family:var(--font-heading);font-size:14px">₱3,200</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:var(--p-surface);border-radius:8px;padding:11px 12px">
+      <span style="width:30px;height:30px;display:grid;place-items:center;border-radius:6px;background:var(--p-track);font-size:14px">🚌</span>
+      <div style="flex:1;font-size:13px">Transpo</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="width:22px;height:22px;display:grid;place-items:center;border:1px solid var(--p-border);border-radius:6px;color:var(--p-muted);font-size:13px">−</span>
+        <span style="font-family:var(--font-heading);font-size:14px;min-width:56px;text-align:right">₱2,500</span>
+        <span style="width:22px;height:22px;display:grid;place-items:center;border:1px solid var(--p-border);border-radius:6px;color:var(--p-muted);font-size:13px">+</span>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:var(--p-surface);border-radius:8px;padding:11px 12px;box-shadow:inset 0 0 0 1px var(--p-accent-soft)">
+      <span style="width:30px;height:30px;display:grid;place-items:center;border-radius:6px;background:var(--p-accent-softer);font-size:14px">🛟</span>
+      <div style="flex:1;display:flex;flex-direction:column;gap:2px">
+        <div style="font-size:13px">Emergency fund</div>
+        <div style="font-size:10px;color:var(--p-accent-text2)">10% of income — suggested</div>
+      </div>
+      <span style="font-family:var(--font-heading);font-size:14px">₱2,500</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:var(--p-surface);border-radius:8px;padding:11px 12px">
+      <span style="width:30px;height:30px;display:grid;place-items:center;border-radius:6px;background:var(--p-track);font-size:14px">💜</span>
+      <div style="flex:1;font-size:13px">Extra to BPI card</div>
+      <span style="font-family:var(--font-heading);font-size:14px">₱2,000</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px;background:var(--p-surface);border-radius:8px;padding:11px 12px">
+      <span style="width:30px;height:30px;display:grid;place-items:center;border-radius:6px;background:var(--p-track);font-size:14px">🎬</span>
+      <div style="flex:1;font-size:13px">Fun money</div>
+      <span style="font-family:var(--font-heading);font-size:14px">₱800</span>
+    </div>
+    <div style="font-size:11.5px;color:var(--p-accent-text);padding:4px 2px">+ add envelope</div>
+  </div>
+  <div style="padding:12px 20px 18px;background:var(--p-surface);border-top:1px solid var(--p-border);display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;justify-content:space-between;align-items:center">
+      <span style="font-size:12.5px;color:var(--p-positive);display:flex;align-items:center;gap:6px"><span style="width:8px;height:8px;border-radius:50%;background:var(--p-positive)"></span>₱0 left to assign — exact plan ✓</span>
+      <span style="font-size:11px;color:var(--p-muted)">₱25,000 / ₱25,000</span>
+    </div>
+    <div style="height:6px;border-radius:3px;background:var(--p-track)"><div style="width:100%;height:100%;border-radius:3px;background:var(--p-positive-bar)"></div></div>
+    <div style="text-align:center;padding:11px 0;border:1px solid var(--p-accent);border-radius:8px;color:var(--p-accent-text);font-family:var(--font-heading);font-size:14px">Activate plan</div>
+  </div>
+</div>
+</div></div>
+
+<!-- 1d DEBTS LIST -->
+<div class="dv-opt" id="1d"><div class="dv-olabel"><a class="dv-oid" href="#1d">1d</a>Debts — trophy-shelf framing, debt-free date headline</div>
+<div class="dv-card th-sorbetes" style="width:390px">
+<div style="display:flex;flex-direction:column;gap:14px;padding:22px 20px 20px;min-height:760px">
+  <div>
+    <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted)">You owe</div>
+    <div style="font-family:var(--font-heading);font-weight:500;font-size:40px;letter-spacing:-0.02em">₱46,900</div>
+    <div style="font-size:12.5px;color:var(--p-accent-text2);margin-top:2px">Debt-free: <span style="font-weight:600">March 2028</span> at current pace · <span style="color:var(--p-muted)">assuming ₱4,500/mo</span></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="background:var(--p-surface);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:14px">BPI Amore card</span>
+        <span style="font-family:var(--font-heading);font-weight:500;font-size:17px">₱18,400</span>
+      </div>
+      <div style="height:5px;border-radius:3px;background:var(--p-track)"><div style="width:39%;height:100%;border-radius:3px;background:var(--p-accent-bar)"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--p-muted)"><span>39% paid of ₱30,000</span><span>min ₱3,200 · due 5th · 3%/mo</span></div>
+    </div>
+    <div style="background:var(--p-surface);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:14px">SSS salary loan</span>
+        <span style="font-family:var(--font-heading);font-weight:500;font-size:17px">₱18,700</span>
+      </div>
+      <div style="height:5px;border-radius:3px;background:var(--p-track)"><div style="width:22%;height:100%;border-radius:3px;background:var(--p-accent-bar)"></div></div>
+      <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--p-muted)"><span>22% paid of ₱24,000</span><span>₱1,050 semi-monthly · 0.83%/mo</span></div>
+    </div>
+    <div style="background:var(--p-surface);border-radius:8px;padding:14px;display:flex;flex-direction:column;gap:8px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline">
+        <span style="font-size:14px">Shopee installment — phone</span>
+        <span style="font-family:var(--font-heading);font-weight:500;font-size:17px">₱4,800</span>
+      </div>
+      <div style="display:flex;gap:4px">
+        <span style="flex:1;height:5px;border-radius:3px;background:var(--p-accent-bar)"></span><span style="flex:1;height:5px;border-radius:3px;background:var(--p-accent-bar)"></span><span style="flex:1;height:5px;border-radius:3px;background:var(--p-track2)"></span><span style="flex:1;height:5px;border-radius:3px;background:var(--p-track2)"></span><span style="flex:1;height:5px;border-radius:3px;background:var(--p-track2)"></span><span style="flex:1;height:5px;border-radius:3px;background:var(--p-track2)"></span>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:10.5px;color:var(--p-muted)"><span>2 of 6 paid</span><span>₱1,200/mo · due 30th · no interest</span></div>
+    </div>
+    <div style="background:var(--p-surface);border-radius:8px;padding:14px;display:flex;align-items:center;gap:12px">
+      <span style="width:34px;height:34px;border-radius:50%;background:var(--p-accent-soft);color:var(--p-accent-soft-text);display:grid;place-items:center;font-family:var(--font-heading);font-size:13px">K</span>
+      <div style="flex:1;display:flex;flex-direction:column;gap:1px">
+        <span style="font-size:14px">Utang kay Kuya</span>
+        <span style="font-size:10.5px;color:var(--p-muted)">flexible · no interest · no nagging</span>
+      </div>
+      <span style="font-family:var(--font-heading);font-weight:500;font-size:17px">₱5,000</span>
+    </div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px;margin-top:2px">
+    <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-faint)">Paid off 🏁</div>
+    <div style="display:flex;align-items:center;gap:10px;padding:10px 14px;border:1px dashed var(--p-track2);border-radius:8px;opacity:.7">
+      <span style="font-size:13px;flex:1;text-decoration:line-through;color:var(--p-muted)">Home Credit — laptop</span>
+      <span style="font-size:10.5px;color:var(--p-positive)">₱21,600 · cleared May 2026</span>
+    </div>
+  </div>
+  <div style="margin-top:auto;text-align:center;padding:11px 0;border:1px solid var(--p-border);border-radius:8px;color:var(--p-text-2);font-size:13px">Compare payoff strategies →</div>
+</div>
+</div></div>
+
+<!-- 1e DEBT DETAIL -->
+<div class="dv-opt" id="1e"><div class="dv-olabel"><a class="dv-oid" href="#1e">1e</a>Debt detail — ring, projection, history</div>
+<div class="dv-card th-sorbetes" style="width:390px">
+<div style="display:flex;flex-direction:column;gap:16px;padding:22px 20px 20px;min-height:720px">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <span style="font-size:13px;color:var(--p-muted)">← BPI Amore card</span>
+    <span style="font-size:16px;color:var(--p-faint)">⋯</span>
+  </div>
+  <div style="display:flex;align-items:center;gap:20px">
+    <svg width="110" height="110" viewBox="0 0 110 110">
+      <circle cx="55" cy="55" r="46" fill="none" stroke="var(--p-track)" stroke-width="9"></circle>
+      <circle cx="55" cy="55" r="46" fill="none" stroke="var(--p-accent)" stroke-width="9" stroke-linecap="round" stroke-dasharray="112.7 176.3" transform="rotate(-90 55 55)"></circle>
+      <text x="55" y="52" text-anchor="middle" fill="var(--p-text)" font-size="17" font-family="Inter" font-weight="500">39%</text>
+      <text x="55" y="68" text-anchor="middle" fill="var(--p-muted)" font-size="9" font-family="Inter">paid</text>
+    </svg>
+    <div>
+      <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted)">Balance</div>
+      <div style="font-family:var(--font-heading);font-weight:500;font-size:32px">₱18,400</div>
+      <div style="font-size:11px;color:var(--p-muted)">of ₱30,000 · 3%/mo · limit ₱50,000</div>
+      <div style="font-size:11px;color:var(--p-warn-text);margin-top:3px">utilization 37%</div>
+    </div>
+  </div>
+  <div style="text-align:center;padding:12px 0;border:1px solid var(--p-accent);border-radius:8px;color:var(--p-accent-text);font-family:var(--font-heading);font-size:14px">Pay ₱3,200 minimum · due Aug 5</div>
+  <div style="background:var(--p-surface);border-radius:8px;padding:12px 14px;display:flex;flex-direction:column;gap:4px">
+    <div style="font-size:12.5px">At ₱5,200/month → done <span style="color:var(--p-accent-text2);font-weight:600">Jan 2027</span></div>
+    <div style="font-size:11px;color:var(--p-muted)">~₱1,780 interest to go — estimate; your statement is the source of truth. <span style="color:var(--p-accent-text)">Statement sync →</span></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:2px">
+    <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted);margin-bottom:6px">Payment history</div>
+    <div style="display:flex;justify-content:space-between;padding:9px 2px;font-size:13px;background:linear-gradient(to right,transparent,var(--p-border) 48px,var(--p-border) calc(100% - 48px),transparent) no-repeat bottom / 100% 1px"><span>Jul 15 · from BPI Payroll</span><span style="color:var(--p-positive)">− ₱5,200</span></div>
+    <div style="display:flex;justify-content:space-between;padding:9px 2px;font-size:13px;background:linear-gradient(to right,transparent,var(--p-border) 48px,var(--p-border) calc(100% - 48px),transparent) no-repeat bottom / 100% 1px"><span>Jun 30 · from BPI Payroll</span><span style="color:var(--p-positive)">− ₱3,200</span></div>
+    <div style="display:flex;justify-content:space-between;padding:9px 2px;font-size:13px;background:linear-gradient(to right,transparent,var(--p-border) 48px,var(--p-border) calc(100% - 48px),transparent) no-repeat bottom / 100% 1px"><span>Jun 12 · card purchase — Lazada</span><span style="color:var(--p-danger)">+ ₱2,340</span></div>
+    <div style="display:flex;justify-content:space-between;padding:9px 2px;font-size:13px"><span>Jun 5 · statement sync</span><span style="color:var(--p-muted)">adjusted +₱410</span></div>
+  </div>
+  <div style="font-size:12.5px;line-height:1.55;color:var(--p-muted2);font-style:italic;border-left:2px solid var(--p-accent-dim);padding-left:12px;margin-top:auto">"Look at you naman, making responsible decisions. Character development talaga, bes."</div>
+</div>
+</div></div>
+
+<!-- 1f CHAT -->
+<div class="dv-opt" id="1f"><div class="dv-olabel"><a class="dv-oid" href="#1f">1f</a>AI Chat — Q&amp;A, parse-draft confirm card, reactions in-line</div>
+<div class="dv-card th-sorbetes" style="width:390px">
+<div style="display:flex;flex-direction:column;min-height:800px">
+  <div style="padding:18px 20px 12px;display:flex;align-items:center;gap:10px;background:linear-gradient(to right,transparent,var(--p-border) 48px,var(--p-border) calc(100% - 48px),transparent) no-repeat bottom / 100% 1px">
+    <span style="width:32px;height:32px;border-radius:50%;background:var(--p-accent-soft);display:grid;place-items:center;color:var(--p-accent-soft-text);font-size:15px">✦</span>
+    <div style="display:flex;flex-direction:column">
+      <span style="font-size:14px;font-family:var(--font-heading)">Bes</span>
+      <span style="font-size:10px;color:var(--p-muted)">financially practical, hindi financially licensed</span>
+    </div>
+    <span style="margin-left:auto;font-size:10.5px;padding:3px 9px;border-radius:6px;background:var(--p-accent-soft);color:var(--p-accent-soft-text)">Balanced</span>
+  </div>
+  <div style="flex:1;display:flex;flex-direction:column;gap:12px;padding:16px 20px">
+    <div style="align-self:center;font-size:10px;color:var(--p-faint)">Today, 7:42 PM</div>
+    <div style="align-self:flex-end;max-width:75%;background:var(--p-accent-softer);border-radius:12px 12px 3px 12px;padding:9px 13px;font-size:13.5px">can I afford a ₱3,000 keyboard?</div>
+    <div style="align-self:flex-start;max-width:85%;background:var(--p-surface);border-radius:12px 12px 12px 3px;padding:11px 14px;font-size:13.5px;line-height:1.55">Uy technically yes naman — ₱3,000 fits pa sa <b>₱5,240</b> safe-to-spend mo. Pero bes, si Meralco darating in 3 days and rent will eat you alive sa 30th, so "afford" is doing a lot of work dito ha. Fun money has <b>₱700</b> na lang, just saying.<div style="margin-top:7px;font-size:10.5px;color:var(--p-muted)">assumes: no other spending today · payday Aug 15</div></div>
+    <div style="align-self:flex-end;max-width:75%;background:var(--p-accent-softer);border-radius:12px 12px 3px 12px;padding:9px 13px;font-size:13.5px">spent 350 on grab kanina</div>
+    <div style="align-self:flex-start;width:88%;background:var(--p-surface);border-radius:12px;padding:13px 14px;display:flex;flex-direction:column;gap:9px;box-shadow:inset 0 0 0 1px var(--p-accent-soft)">
+      <div style="font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--p-accent-text)">Draft — confirm to save</div>
+      <div style="display:flex;justify-content:space-between;font-size:13px"><span style="color:var(--p-muted)">Expense</span><span style="font-family:var(--font-heading);font-size:16px">₱350.00</span></div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        <span style="font-size:11px;padding:3px 9px;border-radius:6px;background:var(--p-track);color:var(--p-text-2)">🚌 Transpo</span>
+        <span style="font-size:11px;padding:3px 9px;border-radius:6px;background:var(--p-track);color:var(--p-text-2)">Grab</span>
+        <span style="font-size:11px;padding:3px 9px;border-radius:6px;background:var(--p-track);color:var(--p-text-2)">GCash</span>
+        <span style="font-size:11px;padding:3px 9px;border-radius:6px;background:var(--p-track);color:var(--p-text-2)">today</span>
+      </div>
+      <div style="display:flex;gap:8px">
+        <span style="flex:1;text-align:center;padding:8px 0;border:1px solid var(--p-accent);border-radius:8px;color:var(--p-accent-text);font-size:12.5px">Confirm</span>
+        <span style="padding:8px 14px;border:1px solid var(--p-border);border-radius:8px;color:var(--p-muted);font-size:12.5px">Edit</span>
+        <span style="padding:8px 14px;border:1px solid var(--p-border);border-radius:8px;color:var(--p-muted);font-size:12.5px">✕</span>
+      </div>
+    </div>
+    <div style="align-self:flex-start;max-width:85%;font-size:12px;color:var(--p-muted);font-style:italic;padding-left:4px">Transpo envelope: ₱650 na lang for 9 more days, bes. Grab math is talagang undefeated 'no?</div>
+  </div>
+  <div style="padding:10px 20px 18px;display:flex;flex-direction:column;gap:10px">
+    <div style="display:flex;gap:6px;overflow:hidden">
+      <span style="font-size:11px;padding:5px 11px;border-radius:14px;border:1px solid var(--p-border);color:var(--p-muted2);white-space:nowrap">What's due soon?</span>
+      <span style="font-size:11px;padding:5px 11px;border-radius:14px;border:1px solid var(--p-border);color:var(--p-muted2);white-space:nowrap">Where did my money go?</span>
+      <span style="font-size:11px;padding:5px 11px;border-radius:14px;border:1px solid var(--p-border);color:var(--p-muted2);white-space:nowrap">Plan my salary</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;background:var(--p-surface);border:1px solid var(--p-border);border-radius:10px;padding:10px 14px">
+      <span style="flex:1;font-size:13px;color:var(--p-faint)">Ask or log anything…</span>
+      <span style="color:var(--p-accent-text);font-size:15px">➤</span>
+    </div>
+  </div>
+</div>
+</div></div>
+
+<!-- 1g BILLS -->
+<div class="dv-opt" id="1g"><div class="dv-olabel"><a class="dv-oid" href="#1g">1g</a>Bills — 7/15/30 horizon, overdue first</div>
+<div class="dv-card th-sorbetes" style="width:390px">
+<div style="display:flex;flex-direction:column;gap:14px;padding:22px 20px 20px;min-height:700px">
+  <div style="display:flex;justify-content:space-between;align-items:center">
+    <div style="font-family:var(--font-heading);font-weight:500;font-size:20px">Bills</div>
+    <div style="display:flex;border:1px solid var(--p-border);border-radius:8px;overflow:hidden;font-size:11.5px">
+      <span style="padding:5px 12px;color:var(--p-accent-text);box-shadow:inset 0 0 0 1px var(--p-accent)">7d</span>
+      <span style="padding:5px 12px;border-left:1px solid var(--p-border);color:var(--p-muted)">15d</span>
+      <span style="padding:5px 12px;border-left:1px solid var(--p-border);color:var(--p-muted)">30d</span>
+    </div>
+  </div>
+  <div style="background:var(--p-surface);border-radius:8px;padding:12px 14px;display:flex;justify-content:space-between;align-items:baseline">
+    <span style="font-size:12px;color:var(--p-muted)">Next 7 days · 3 bills</span>
+    <span style="font-family:var(--font-heading);font-weight:500;font-size:20px">₱7,100</span>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="display:flex;align-items:center;gap:11px;background:var(--p-surface);border-radius:8px;padding:12px 14px;box-shadow:inset 2px 0 0 var(--p-danger-bar)">
+      <div style="flex:1;display:flex;flex-direction:column;gap:1px">
+        <span style="font-size:13.5px">PLDT Home fiber</span>
+        <span style="font-size:10.5px;color:var(--p-danger)">overdue 2 days · ₱1,400 of ₱1,699 still unpaid</span>
+      </div>
+      <span style="font-family:var(--font-heading);font-size:14px">₱1,400</span>
+      <span style="font-size:11.5px;padding:6px 13px;border:1px solid var(--p-accent);border-radius:7px;color:var(--p-accent-text)">Pay</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:11px;background:var(--p-surface);border-radius:8px;padding:12px 14px">
+      <div style="flex:1;display:flex;flex-direction:column;gap:1px">
+        <span style="font-size:13.5px">Meralco</span>
+        <span style="font-size:10.5px;color:var(--p-warn-text)">due Aug 3 · in 3 days · usually ~₱2,300</span>
+      </div>
+      <span style="font-family:var(--font-heading);font-size:14px">₱2,500</span>
+      <span style="font-size:11.5px;padding:6px 13px;border:1px solid var(--p-accent);border-radius:7px;color:var(--p-accent-text)">Pay</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:11px;background:var(--p-surface);border-radius:8px;padding:12px 14px">
+      <div style="flex:1;display:flex;flex-direction:column;gap:1px">
+        <span style="font-size:13.5px">BPI card minimum</span>
+        <span style="font-size:10.5px;color:var(--p-muted)">due Aug 5 · pays the card debt too</span>
+      </div>
+      <span style="font-family:var(--font-heading);font-size:14px">₱3,200</span>
+      <span style="font-size:11.5px;padding:6px 13px;border:1px solid var(--p-accent);border-radius:7px;color:var(--p-accent-text)">Pay</span>
+    </div>
+  </div>
+  <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-faint);margin-top:6px">Later this cycle</div>
+  <div style="display:flex;flex-direction:column">
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 2px;font-size:13px;background:linear-gradient(to right,transparent,var(--p-border) 48px,var(--p-border) calc(100% - 48px),transparent) no-repeat bottom / 100% 1px"><span>Netflix</span><span style="color:var(--p-muted)">Aug 10 · ₱549</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 2px;font-size:13px;background:linear-gradient(to right,transparent,var(--p-border) 48px,var(--p-border) calc(100% - 48px),transparent) no-repeat bottom / 100% 1px"><span>SSS loan (semi-monthly)</span><span style="color:var(--p-muted)">Aug 15 · ₱1,050</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 2px;font-size:13px;background:linear-gradient(to right,transparent,var(--p-border) 48px,var(--p-border) calc(100% - 48px),transparent) no-repeat bottom / 100% 1px"><span>Rent</span><span style="color:var(--p-muted)">Aug 30 · ₱8,000</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 2px;font-size:13px"><span>Shopee installment 3/6</span><span style="color:var(--p-muted)">Aug 30 · ₱1,200</span></div>
+  </div>
+  <div style="margin-top:auto;font-size:12.5px;color:var(--p-muted2);font-style:italic;border-left:2px solid var(--p-accent-dim);padding-left:12px">"Bes, si PLDT is 2 days late na. The internet you're reading this on may feelings din."</div>
+</div>
+</div></div>
+
+<!-- 1h ONBOARDING -->
+<div class="dv-opt" id="1h"><div class="dv-olabel"><a class="dv-oid" href="#1h">1h</a>Onboarding — payday + personality with live sample lines</div>
+<div class="dv-card th-sorbetes" style="width:390px">
+<div style="display:flex;flex-direction:column;gap:20px;padding:26px 22px 22px;min-height:720px">
+  <div style="display:flex;gap:5px">
+    <span style="flex:1;height:3px;border-radius:2px;background:var(--p-accent)"></span>
+    <span style="flex:1;height:3px;border-radius:2px;background:var(--p-accent)"></span>
+    <span style="flex:1;height:3px;border-radius:2px;background:var(--p-accent)"></span>
+    <span style="flex:1;height:3px;border-radius:2px;background:var(--p-track2)"></span>
+  </div>
+  <div>
+    <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-accent-text);margin-bottom:6px">Step 4 of 4 — the fun one</div>
+    <div style="font-family:var(--font-heading);font-weight:500;font-size:26px;line-height:1.15">How honest should I be about your spending?</div>
+    <div style="font-size:12.5px;color:var(--p-muted);margin-top:8px">You can change this anytime. Health, family and emergency expenses are never joked about — that's a hard rule, not a setting.</div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:10px">
+    <div style="background:var(--p-surface);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:7px">
+      <div style="display:flex;align-items:center;gap:9px"><span style="width:15px;height:15px;border-radius:50%;border:1.5px solid var(--p-border)"></span><span style="font-size:14px">Gentle</span></div>
+      <div style="font-size:12px;color:var(--p-muted);line-height:1.5;padding-left:24px">"Uy, food's a bit over plan — ₱1,500. Gusto mo i-rebalance natin?"</div>
+    </div>
+    <div style="background:var(--p-surface);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:7px;box-shadow:inset 0 0 0 1px var(--p-accent)">
+      <div style="display:flex;align-items:center;gap:9px"><span style="width:15px;height:15px;border-radius:50%;border:1.5px solid var(--p-accent);background:var(--p-accent);box-shadow:inset 0 0 0 3.5px var(--p-surface)"></span><span style="font-size:14px;color:var(--p-accent-soft-text)">Balanced</span><span style="margin-left:auto;font-size:10px;padding:2px 8px;border-radius:5px;background:var(--p-accent-soft);color:var(--p-accent-soft-text)">recommended</span></div>
+      <div style="font-size:12px;color:var(--p-muted2);line-height:1.5;padding-left:24px">"Food budget exceeded by ₱1,500 na. The meal plan was apparently suggestion lang pala."</div>
+    </div>
+    <div style="background:var(--p-surface);border-radius:10px;padding:14px;display:flex;flex-direction:column;gap:7px">
+      <div style="display:flex;align-items:center;gap:9px"><span style="width:15px;height:15px;border-radius:50%;border:1.5px solid var(--p-border)"></span><span style="font-size:14px">Savage</span></div>
+      <div style="font-size:12px;color:var(--p-muted);line-height:1.5;padding-left:24px">"₱1,500 over on food, bes. The budget didn't fail you — hindi mo lang siya kinonsulta."</div>
+    </div>
+  </div>
+  <div style="background:var(--p-surface);border-radius:8px;padding:11px 14px;display:flex;align-items:center;justify-content:space-between">
+    <div style="display:flex;flex-direction:column"><span style="font-size:13px">Reactions on</span><span style="font-size:10.5px;color:var(--p-muted)">full opt-out lives in Settings</span></div>
+    <span style="width:38px;height:22px;border-radius:11px;background:var(--p-accent-dim);position:relative"><span style="position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:var(--p-text)"></span></span>
+  </div>
+  <div style="margin-top:auto;display:flex;flex-direction:column;gap:8px">
+    <div style="text-align:center;padding:12px 0;border:1px solid var(--p-accent);border-radius:8px;color:var(--p-accent-text);font-family:var(--font-heading);font-size:14px">Finish — show me my money</div>
+    <div style="text-align:center;font-size:12px;color:var(--p-faint)">Skip for now</div>
+  </div>
+</div>
+</div></div>
+
+<!-- 1i REPORTS -->
+<div class="dv-opt" id="1i"><div class="dv-olabel"><a class="dv-oid" href="#1i">1i</a>Month review — cash flow, variances, health score</div>
+<div class="dv-card th-sorbetes" style="width:390px">
+<div style="display:flex;flex-direction:column;gap:16px;padding:22px 20px 20px;min-height:740px">
+  <div>
+    <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-accent-text)">July's story</div>
+    <div style="font-family:var(--font-heading);font-weight:500;font-size:24px">You ended ₱3,850 ahead</div>
+    <div style="font-size:12px;color:var(--p-muted)">money in ₱50,000 · money out ₱46,150</div>
+  </div>
+  <div style="display:flex;align-items:flex-end;gap:10px;height:110px;padding:0 6px">
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:100%;display:flex;gap:3px;align-items:flex-end;height:84px"><span style="flex:1;height:100%;background:var(--p-accent-bar);border-radius:3px 3px 0 0"></span><span style="flex:1;height:88%;background:var(--p-dim);border-radius:3px 3px 0 0"></span></div><span style="font-size:9.5px;color:var(--p-faint)">May</span></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:100%;display:flex;gap:3px;align-items:flex-end;height:84px"><span style="flex:1;height:100%;background:var(--p-accent-bar);border-radius:3px 3px 0 0"></span><span style="flex:1;height:97%;background:var(--p-dim);border-radius:3px 3px 0 0"></span></div><span style="font-size:9.5px;color:var(--p-faint)">Jun</span></div>
+    <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:5px"><div style="width:100%;display:flex;gap:3px;align-items:flex-end;height:84px"><span style="flex:1;height:100%;background:var(--p-accent-text2);border-radius:3px 3px 0 0;box-shadow:0 0 14px var(--p-glow)"></span><span style="flex:1;height:92%;background:var(--p-faint);border-radius:3px 3px 0 0"></span></div><span style="font-size:9.5px;color:var(--p-text-2)">Jul</span></div>
+    <div style="display:flex;flex-direction:column;gap:4px;font-size:9.5px;color:var(--p-muted);padding-bottom:14px"><span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:2px;background:var(--p-accent-bar)"></span>in</span><span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:2px;background:var(--p-dim)"></span>out</span></div>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:8px">
+    <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted)">Plan vs actual — worst 2</div>
+    <div style="display:flex;justify-content:space-between;align-items:center;background:var(--p-surface);border-radius:8px;padding:10px 13px;font-size:13px"><span>Food</span><span style="color:var(--p-warn-text)">+18% · ₱1,080 over</span></div>
+    <div style="display:flex;justify-content:space-between;align-items:center;background:var(--p-surface);border-radius:8px;padding:10px 13px;font-size:13px"><span>Fun</span><span style="color:var(--p-warn-text)">+38% · ₱300 over</span></div>
+  </div>
+  <div style="background:var(--p-surface);border-radius:10px;padding:16px 16px 14px;display:flex;gap:18px;align-items:center">
+    <svg width="86" height="86" viewBox="0 0 86 86">
+      <circle cx="43" cy="43" r="36" fill="none" stroke="var(--p-track)" stroke-width="7"></circle>
+      <circle cx="43" cy="43" r="36" fill="none" stroke="var(--p-accent)" stroke-width="7" stroke-linecap="round" stroke-dasharray="153.7 226.2" transform="rotate(-90 43 43)"></circle>
+      <text x="43" y="48" text-anchor="middle" fill="var(--p-text)" font-size="20" font-family="Inter" font-weight="500">68</text>
+    </svg>
+    <div style="flex:1;display:flex;flex-direction:column;gap:6px;font-size:11.5px">
+      <div style="display:flex;justify-content:space-between"><span style="color:var(--p-muted2)">Bills on time</span><span>34/40</span></div>
+      <div style="height:3px;background:var(--p-track);border-radius:2px"><div style="width:85%;height:100%;background:var(--p-accent-bar);border-radius:2px"></div></div>
+      <div style="display:flex;justify-content:space-between"><span style="color:var(--p-muted2)">Debt pressure</span><span>19/30</span></div>
+      <div style="height:3px;background:var(--p-track);border-radius:2px"><div style="width:63%;height:100%;background:var(--p-accent-bar);border-radius:2px"></div></div>
+      <div style="display:flex;justify-content:space-between"><span style="color:var(--p-muted2)">Saving habit</span><span>15/30</span></div>
+      <div style="height:3px;background:var(--p-track);border-radius:2px"><div style="width:50%;height:100%;background:var(--p-accent-bar);border-radius:2px"></div></div>
+      <div style="font-size:10px;color:var(--p-faint);margin-top:2px">a compass, not a grade — tap any factor for the math</div>
+    </div>
+  </div>
+  <div style="background:var(--p-surface);border-radius:8px;padding:12px 14px;display:flex;align-items:center;gap:12px">
+    <div style="flex:1;font-size:12.5px;line-height:1.5">Food ran over twice — raise the envelope to <b>₱6,500</b> next cycle?</div>
+    <span style="font-size:11.5px;padding:6px 13px;border:1px solid var(--p-accent);border-radius:7px;color:var(--p-accent-text);white-space:nowrap">Apply</span>
+  </div>
+</div>
+</div></div>
+
+<!-- 1j DESKTOP -->
+<div class="dv-opt" id="1j"><div class="dv-olabel"><a class="dv-oid" href="#1j">1j</a>Desktop dashboard — left rail, 3-column grid, same mental model</div>
+<div class="dv-card th-sorbetes" style="width:960px">
+<div style="display:flex;min-height:560px">
+  <div style="width:180px;display:flex;flex-direction:column;gap:2px;padding:20px 12px;border-right:1px solid var(--p-border)">
+    <div style="font-family:var(--font-heading);font-weight:500;font-size:17px;padding:0 10px 18px;color:var(--p-accent-text)">₱ piso</div>
+    <div style="padding:8px 10px;border-radius:7px;background:var(--p-accent-softer);color:var(--p-accent-soft-text);font-size:13px">Home</div>
+    <div style="padding:8px 10px;border-radius:7px;color:var(--p-muted);font-size:13px">Money</div>
+    <div style="padding:8px 10px;border-radius:7px;color:var(--p-muted);font-size:13px">Debts</div>
+    <div style="padding:8px 10px;border-radius:7px;color:var(--p-muted);font-size:13px">Chat</div>
+    <div style="padding:8px 10px;border-radius:7px;color:var(--p-muted);font-size:13px">More</div>
+    <div style="margin-top:auto;text-align:center;padding:9px 0;border:1px solid var(--p-accent);border-radius:8px;color:var(--p-accent-text);font-size:13px">+ Quick add <span style="font-size:10px;color:var(--p-muted)">N</span></div>
+  </div>
+  <div style="flex:1;padding:24px 26px;display:flex;flex-direction:column;gap:18px">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between">
+      <div>
+        <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-accent-text)">Safe to spend</div>
+        <div style="font-family:var(--font-heading);font-weight:500;font-size:40px;letter-spacing:-0.02em">₱5,240 <span style="font-size:14px;color:var(--p-muted);letter-spacing:0">₱610/day until Aug 15</span></div>
+      </div>
+      <div style="font-size:12px;color:var(--p-muted)">Hi Dafhnee · Thu, Jul 31</div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px">
+      <div style="background:var(--p-surface);border-radius:8px;padding:14px 16px"><div style="font-size:10.5px;color:var(--p-muted)">Cash &amp; bank</div><div style="font-family:var(--font-heading);font-weight:500;font-size:22px">₱18,320</div></div>
+      <div style="background:var(--p-surface);border-radius:8px;padding:14px 16px"><div style="font-size:10.5px;color:var(--p-muted)">You owe</div><div style="font-family:var(--font-heading);font-weight:500;font-size:22px">₱46,900</div></div>
+      <div style="background:var(--p-surface);border-radius:8px;padding:14px 16px"><div style="font-size:10.5px;color:var(--p-muted)">Savings</div><div style="font-family:var(--font-heading);font-weight:500;font-size:22px">₱6,500</div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:14px">
+      <div style="background:var(--p-surface);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted)">Due soon</div>
+        <div style="display:flex;justify-content:space-between;font-size:13px"><span>⚡ Meralco</span><span>₱2,500 · <span style="color:var(--p-warn-text)">3 days</span></span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px"><span>💳 BPI card minimum</span><span>₱3,200 · 5 days</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px"><span>📺 Netflix</span><span>₱549 · 10 days</span></div>
+        <div style="font-size:11px;color:var(--p-faint)">next 15 days: ₱9,800 total</div>
+      </div>
+      <div style="background:var(--p-surface);border-radius:8px;padding:16px;display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--p-muted)">This cycle's plan</div>
+        <div style="display:flex;flex-direction:column;gap:2px"><div style="display:flex;justify-content:space-between;font-size:12px"><span>Food</span><span style="color:var(--p-muted)">4.2k/6k</span></div><div style="height:5px;border-radius:3px;background:var(--p-track)"><div style="width:70%;height:100%;border-radius:3px;background:var(--p-accent-bar2)"></div></div></div>
+        <div style="display:flex;flex-direction:column;gap:2px"><div style="display:flex;justify-content:space-between;font-size:12px"><span>Transpo</span><span style="color:var(--p-muted)">1.5k/2.5k</span></div><div style="height:5px;border-radius:3px;background:var(--p-track)"><div style="width:60%;height:100%;border-radius:3px;background:var(--p-accent-bar2)"></div></div></div>
+        <div style="display:flex;flex-direction:column;gap:2px"><div style="display:flex;justify-content:space-between;font-size:12px"><span>Fun</span><span style="color:var(--p-warn-text)">over ₱300</span></div><div style="height:5px;border-radius:3px;background:var(--p-track)"><div style="width:100%;height:100%;border-radius:3px;background:var(--p-warn)"></div></div></div>
+      </div>
+    </div>
+    <div style="font-size:13px;color:var(--p-muted2);font-style:italic;border-left:2px solid var(--p-accent-dim);padding-left:12px">"Bes, you spent 18% more on food kaysa sa plan. The meal plan was more of a suggestion lang pala."</div>
+  </div>
+</div>
+</div></div>
+
+</div>
+<p class="dv-next">Try next: "wire up <a class="dv-oid" href="#1a">1a</a> + <a class="dv-oid" href="#1b">1b</a> + <a class="dv-oid" href="#1f">1f</a> into the working prototype" · "make the dashboard hero bigger like a bank app" · "show an over-allocation warning state for <a class="dv-oid" href="#1c">1c</a>"</p>
+</section>
+</x-dc>
+</body>
+</html>
