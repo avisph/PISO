@@ -10,6 +10,7 @@ import {
   addMonths,
   daysBetween,
   formatMonthYear,
+  nextPaydayOn,
   parseISO,
   today as todayFn,
 } from './dates'
@@ -118,17 +119,8 @@ function dueBeforePayday(debt: Debt, from: Date, payday: Date): boolean {
   return due < payday
 }
 
-export function nextPaydayFor(data: AppData, from: Date = todayFn()): Date {
-  const endOfMonth = new Date(from.getFullYear(), from.getMonth() + 1, 0).getDate()
-  if (data.profile.payCadence === 'monthly') {
-    const d = new Date(from.getFullYear(), from.getMonth(), endOfMonth)
-    return d > from ? d : new Date(from.getFullYear(), from.getMonth() + 1, 0)
-  }
-  const day = from.getDate()
-  if (day < 15) return new Date(from.getFullYear(), from.getMonth(), 15)
-  if (day < endOfMonth) return new Date(from.getFullYear(), from.getMonth(), endOfMonth)
-  return new Date(from.getFullYear(), from.getMonth() + 1, 15)
-}
+export const nextPaydayFor = (data: AppData, from: Date = todayFn()): Date =>
+  nextPaydayOn(data.profile.payCadence, from)
 
 /* ── 13.12 Daily allowance ────────────────────────────────────────────────── */
 

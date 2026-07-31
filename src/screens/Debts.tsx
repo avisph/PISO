@@ -35,6 +35,27 @@ export function Debts({ onNavigate }: { onNavigate: (route: Route) => void }) {
   const snowball = simulateStrategy(active, extra, 'snowball', now)
   const avalanche = simulateStrategy(active, extra, 'avalanche', now)
 
+  // Owing nothing is the goal, not a blank screen — and a "debt-free by
+  // July 2026" projection over zero debts is noise dressed as a finding.
+  if (active.length === 0 && cleared.length === 0) {
+    return (
+      <div className="screen screen--pad-bottom" style={{ gap: 14 }}>
+        <section>
+          <Kicker>You owe</Kicker>
+          <div className="h-hero h-hero--sm">{formatMoney(0)}</div>
+          <div style={{ fontSize: 12.5, color: 'var(--p-accent-text2)', marginTop: 2 }}>
+            Wala kang utang na naka-track. Sana all.
+          </div>
+        </section>
+        <div className="surface-pad muted" style={{ fontSize: 12.5, lineHeight: 1.55 }}>
+          Kapag may nautang ka — credit card, loan, o kay kuya — ilagay mo dito at susubaybayan
+          ko ang balanse, ang minimum, at kung kailan ka matatapos. Log a payment from the +
+          button and it lands here.
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="screen screen--pad-bottom" style={{ gap: 14 }}>
       <section>

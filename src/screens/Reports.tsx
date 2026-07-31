@@ -1,7 +1,19 @@
 import { useStore } from '../state/store'
 import { Kicker, Ring } from '../components/ui'
 import { formatMoney, formatPct, peso } from '../lib/money'
-import { healthScore, worstVariances } from '../lib/finance'
+import { healthScore, monthCashFlow, worstVariances } from '../lib/finance'
+import { today } from '../lib/dates'
+import type { AppData } from '../types'
+
+/** The last four months, ending with this one, straight from the ledger. */
+function recentFlow(data: AppData): AppData['monthlyFlow'] {
+  const now = today()
+  return [-3, -2, -1, 0].map((offset) => {
+    const month = new Date(now.getFullYear(), now.getMonth() + offset, 1)
+    const { moneyIn, moneyOut } = monthCashFlow(data, offset, now)
+    return { label: month.toLocaleDateString('en-PH', { month: 'short' }), moneyIn, moneyOut }
+  })
+}
 
 /**
  * 1i — Month review. Cash-flow bars, the two worst variances, the health score
@@ -10,10 +22,13 @@ import { healthScore, worstVariances } from '../lib/finance'
 export function Reports() {
   const [data, dispatch] = useStore()
 
-  const flow = data.monthlyFlow
+  // The demo persona ships four months of pre-baked history its transaction
+  // list doesn't contain. A real ledger has no such history, so derive the
+  // bars from what actually happened — and never divide by an empty maximum.
+  const flow = data.monthlyFlow.length ? data.monthlyFlow : recentFlow(data)
   const current = flow[flow.length - 1]
   const net = current.moneyIn - current.moneyOut
-  const scale = Math.max(...flow.flatMap((m) => [m.moneyIn, m.moneyOut]))
+  const scale = Math.max(1, ...flow.flatMap((m) => [m.moneyIn, m.moneyOut]))
 
   const worst = worstVariances(data.plan, 2)
   const health = healthScore(data)
@@ -23,6 +38,28 @@ export function Reports() {
   const suggestedAmount = suggestion
     ? Math.ceil((suggestion.item.spent + peso(300)) / peso(500)) * peso(500)
     : 0
+
+  // With nothing logged, the score reads 70/100 — 40/40 for bills paid on time
+  // out of none due, 30/30 for debt pressure with no debts. Flattering, and
+  // measured entirely on absence. Say there is nothing to review instead.
+  if (data.transactions.length === 0 && data.monthlyFlow.length === 0) {
+    return (
+      <div className="screen screen--pad-bottom" style={{ gap: 16 }}>
+        <section>
+          <Kicker tone="accent">Month review</Kicker>
+          <div className="h-page">Wala pa akong masasabi</div>
+          <div className="muted" style={{ fontSize: 12.5, marginTop: 6, lineHeight: 1.55 }}>
+            Kailangan ko munang makakita ng galaw. Log a few days of spending and this fills in:
+            cash flow, where the plan slipped, and a health score that means something.
+          </div>
+        </section>
+        <div className="surface-pad muted" style={{ fontSize: 12, lineHeight: 1.55 }}>
+          Hindi kita bibigyan ng score ngayon. Zero bills due looks like a perfect record, and
+          that would only be flattering — hindi totoo.
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="screen screen--pad-bottom" style={{ gap: 16 }}>

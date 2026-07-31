@@ -1664,3 +1664,221 @@ button.debt-card:hover {
     grid-template-columns: 1fr;
   }
 }
+
+/* ── onboarding wizard ─────────────────────────────────────────────────────
+   Steps 2 and 3 ask you to type real numbers, which the mockups never had to
+   do — 1h was a picker. These are the form controls that need, built on the
+   same tokens so every theme gets them for free. */
+
+.onboard {
+  padding: 26px 22px 22px;
+  min-height: 100%;
+}
+.onboard__title {
+  font-size: 26px;
+  line-height: 1.15;
+  margin-top: 6px;
+}
+.onboard__sub {
+  font-size: 12.5px;
+  color: var(--p-muted);
+  line-height: 1.5;
+  margin-top: 8px;
+}
+.onboard__tally {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 12px 14px;
+  border-radius: 8px;
+  background: var(--p-accent-softer);
+  color: var(--p-accent-soft-text);
+  font-size: 12.5px;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.field__label {
+  font-size: 12px;
+  color: var(--p-muted);
+}
+.field__hint {
+  font-size: 11px;
+  color: var(--p-faint);
+  line-height: 1.45;
+}
+
+.input {
+  width: 100%;
+  min-width: 0;
+  background: var(--p-surface);
+  border: 1px solid var(--p-border);
+  border-radius: 8px;
+  padding: 11px 12px;
+  color: var(--p-text);
+  font-family: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 120ms ease;
+}
+.input:focus {
+  border-color: var(--p-accent);
+}
+.input::placeholder {
+  color: var(--p-faint);
+}
+
+/* Sits inside a row that already has a border — no second box. */
+.input--flush {
+  background: none;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  font-size: 14px;
+}
+.input--flush:focus {
+  border: 0;
+}
+
+.field__money {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  background: var(--p-surface);
+  border: 1px solid var(--p-border);
+  border-radius: 8px;
+  padding: 0 10px;
+  flex: none;
+  width: 132px;
+  transition: border-color 120ms ease;
+}
+.field__money:focus-within {
+  border-color: var(--p-accent);
+}
+.field__peso {
+  color: var(--p-muted);
+  font-size: 13px;
+}
+.input--money {
+  background: none;
+  border: 0;
+  padding: 10px 0;
+  font-family: var(--font-heading);
+  font-size: 15px;
+  text-align: right;
+}
+.input--money:focus {
+  border: 0;
+}
+
+.input--day {
+  width: 44px;
+  text-align: center;
+  padding: 6px 4px;
+  font-size: 13px;
+}
+
+/* Segmented control — a radio group that reads as one object. */
+.seg {
+  display: flex;
+  gap: 4px;
+  background: var(--p-track2);
+  border-radius: 8px;
+  padding: 3px;
+}
+.seg__btn {
+  flex: 1;
+  padding: 8px 6px;
+  border-radius: 6px;
+  font-size: 12.5px;
+  color: var(--p-muted);
+  white-space: nowrap;
+  transition: background 120ms ease, color 120ms ease;
+}
+.seg__btn:hover {
+  color: var(--p-text);
+}
+.seg__btn[aria-pressed='true'] {
+  background: var(--p-surface);
+  color: var(--p-text);
+  box-shadow: inset 0 0 0 1px var(--p-accent-dim);
+}
+.seg--sm .seg__btn {
+  padding: 6px 4px;
+  font-size: 11.5px;
+}
+
+/* One editable account or bill. */
+.entry-row {
+  background: var(--p-surface);
+  border-radius: 10px;
+  padding: 11px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.entry-row__top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.entry-row__bottom {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.entry-row__bottom .seg {
+  flex: 1;
+  min-width: 0;
+}
+.entry-row__emoji {
+  font-size: 15px;
+  flex: none;
+}
+.entry-row__drop {
+  flex: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  color: var(--p-faint);
+  font-size: 16px;
+  line-height: 1;
+  transition: background 120ms ease, color 120ms ease;
+}
+.entry-row__drop:hover {
+  background: var(--p-track2);
+  color: var(--p-danger);
+}
+
+.due-day {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+  min-width: 0;
+  font-size: 11.5px;
+  color: var(--p-muted);
+}
+.due-day .muted {
+  font-size: 10.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.add-row {
+  width: 100%;
+  padding: 10px 0;
+  border: 1px dashed var(--p-border);
+  border-radius: 8px;
+  color: var(--p-muted);
+  font-size: 12.5px;
+  transition: border-color 120ms ease, color 120ms ease;
+}
+.add-row:hover {
+  border-color: var(--p-accent);
+  color: var(--p-accent-text);
+}

@@ -82,7 +82,7 @@ Every screen from the design board, as real routes:
 | 1e | Debt detail — ring, projection, history | `#/debts/:id` |
 | 1f | Bes chat — Q&A + parse-draft confirm card | `#/chat` |
 | 1g | Bills — 7/15/30 horizon, overdue first | `#/bills` |
-| 1h | Onboarding — payday + personality | first run |
+| 1h | Onboarding step 4 — personality picker | first run |
 | 1i | Month review — flow, variance, health score | `#/reports` |
 | 1j | Desktop dashboard — left rail, 3 columns | `#/home` ≥ 900px |
 | 2a–d | The four themes | Appearance |
@@ -91,6 +91,24 @@ Every screen from the design board, as real routes:
 Two small connectors the mockups implied but didn't draw: a **Money** hub (the planner's
 own header reads "← Plan this salary", so it is entered from somewhere) and a **Settings**
 list behind the desktop rail's "More".
+
+### Onboarding steps 1–3
+
+The board only ever drew `1h`, and it is labelled "Step 4 of 4" — so the app opened on the
+last step of a wizard whose first three steps did not exist, and every number you saw
+afterwards belonged to Dafhnee, the invented persona. Steps 1–3 ask for the three things
+the engine cannot work without:
+
+| Step | Asks | Feeds |
+| --- | --- | --- |
+| 1 | name, pay cadence, take-home per payout | the cycle, safe-to-spend, daily allowance |
+| 2 | accounts and balances | available cash (savings is excluded on purpose) |
+| 3 | recurring bills and their due days | upcoming obligations, the locked plan rows |
+
+Nothing is invented on your behalf: no starter transactions, no debts, and every envelope
+starts at ₱0 for the planner to assign. A bill left at ₱0 is skipped. If you would rather
+look around than type, step 1 offers the demo persona instead, and **Settings → Start
+over** switches between the two later.
 
 ## How it's built
 

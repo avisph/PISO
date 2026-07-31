@@ -63,10 +63,18 @@ export function formatMoney(c: Centavos, opts: FormatOptions = {}): string {
 export const formatPct = (fraction: number, digits = 0): string =>
   `${(fraction * 100).toFixed(digits)}%`
 
-/** Parse a keypad string ("180", "180.5") into centavos. */
+/**
+ * Parse a typed amount ("180", "180.5", "25,000", "₱1 200") into centavos.
+ *
+ * Thousands separators matter here: the keypad never produces one, but a
+ * person typing their salary into a text field will, and `Number("25,000")`
+ * is NaN — which would silently become a ₱0 salary.
+ */
 export function parseAmount(input: string): Centavos {
   if (!input) return 0
-  const [whole, fraction = ''] = input.split('.')
+  const cleaned = input.replace(/[^\d.]/g, '')
+  if (!cleaned) return 0
+  const [whole, fraction = ''] = cleaned.split('.')
   const centavos = Number((fraction + '00').slice(0, 2))
   return Number(whole || 0) * 100 + (Number.isFinite(centavos) ? centavos : 0)
 }

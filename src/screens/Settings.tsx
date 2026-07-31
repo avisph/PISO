@@ -95,18 +95,41 @@ export function Settings({
       </section>
 
       <section className="stack" style={{ gap: 8 }}>
-        <Kicker tone="faint">Demo data</Kicker>
+        <Kicker tone="faint">Start over</Kicker>
         <button
           type="button"
           className="btn-quiet"
           onClick={() => {
-            if (window.confirm('Reset Dafhnee’s data back to the seeded persona?')) {
+            if (
+              window.confirm(
+                'Set up again from scratch? Your accounts, bills and everything you have logged will be deleted. Hindi ito maibabalik.',
+              )
+            ) {
+              dispatch({ type: 'data/restart' })
+            }
+          }}
+        >
+          Set up my money again
+        </button>
+        <button
+          type="button"
+          className="btn-quiet"
+          onClick={() => {
+            if (
+              window.confirm(
+                'Replace everything with the demo persona? Mawawala ang sarili mong datos.',
+              )
+            ) {
               dispatch({ type: 'data/reset' })
             }
           }}
         >
-          Reset to the seeded persona
+          Load the demo persona instead
         </button>
+        <div className="muted" style={{ fontSize: 11, lineHeight: 1.5 }}>
+          Both wipe what is here now. The demo is Dafhnee — an invented person the app was
+          designed around, useful for looking around and nothing else.
+        </div>
       </section>
     </div>
   )

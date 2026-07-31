@@ -11,7 +11,8 @@ import type { AppData, Personality, ThemeId, Transaction } from '../types'
 import type { Centavos } from '../lib/money'
 import { clampZero } from '../lib/money'
 import { createSeedData } from '../data/seed'
-import { toISO, today } from '../lib/dates'
+import { createStarterData, type SetupAnswers } from '../data/starter'
+import { addDays, currentPaydayOn, nextPaydayOn, parseISO, toISO, today } from '../lib/dates'
 
 const STORAGE_KEY = 'piso.state.v1'
 
@@ -28,7 +29,12 @@ export type Action =
   | { type: 'profile/matchSystem'; on: boolean }
   | { type: 'profile/buffer'; buffer: Centavos }
   | { type: 'profile/onboarded' }
+  /** Onboarding finished: replace the demo persona with the real answers. */
+  | { type: 'data/setup'; answers: SetupAnswers }
+  /** Back to Dafhnee — the demo, for when you want to look around. */
   | { type: 'data/reset' }
+  /** Wipe and run onboarding again, keeping nothing. */
+  | { type: 'data/restart' }
 
 const nextId = (prefix: string) =>
   `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`
@@ -234,11 +240,68 @@ export function reducer(state: AppData, action: Action): AppData {
     case 'profile/onboarded':
       return { ...state, profile: { ...state.profile, onboarded: true } }
 
+    case 'data/setup': {
+      // The personality question comes after this step, so whatever was
+      // already picked survives; everything else is replaced outright.
+      const next = createStarterData(action.answers)
+      return {
+        ...next,
+        profile: {
+          ...next.profile,
+          personality: state.profile.personality,
+          reactionsOn: state.profile.reactionsOn,
+          theme: state.profile.theme,
+          matchSystemTheme: state.profile.matchSystemTheme,
+        },
+      }
+    }
+
     case 'data/reset':
       return createSeedData()
 
+    case 'data/restart': {
+      const fresh = createSeedData()
+      return { ...fresh, profile: { ...fresh.profile, onboarded: false } }
+    }
+
     default:
       return state
+  }
+}
+
+/**
+ * A new payday has arrived since this state was saved: start the next cycle
+ * without losing anything. Envelopes keep what you planned and reset what you
+ * spent; recurring bills you already settled come back for the next month.
+ *
+ * The old behaviour here was to rebuild from the demo seed, which was harmless
+ * while the only data was Dafhnee's and would have silently destroyed a real
+ * ledger the first time a cycle rolled over.
+ */
+function rollCycle(data: AppData, now: Date): AppData {
+  const cadence = data.profile.payCadence
+  const start = currentPaydayOn(cadence, now)
+  const end = addDays(nextPaydayOn(cadence, now), -1)
+
+  const bills = data.bills.map((b) => {
+    if (!b.recurring || b.status !== 'paid') return b
+    const due = parseISO(b.dueOn)
+    if (due >= now) return b
+    const last = new Date(due.getFullYear(), due.getMonth() + 2, 0).getDate()
+    const rolled = new Date(due.getFullYear(), due.getMonth() + 1, Math.min(due.getDate(), last))
+    return { ...b, dueOn: toISO(rolled), amountPaid: 0, status: 'open' as const }
+  })
+
+  return {
+    ...data,
+    bills,
+    plan: {
+      ...data.plan,
+      label: `${start.toLocaleDateString('en-PH', { month: 'long', day: 'numeric' })} salary`,
+      startsOn: toISO(start),
+      endsOn: toISO(end),
+      items: data.plan.items.map((i) => ({ ...i, spent: 0 })),
+    },
   }
 }
 
@@ -248,12 +311,11 @@ function loadInitial(): AppData {
     const raw = window.localStorage.getItem(STORAGE_KEY)
     if (!raw) return createSeedData()
     const parsed = JSON.parse(raw) as AppData
-    // A stored cycle from a previous payday period is stale — start fresh
-    // rather than showing a plan that ended last month.
-    const fresh = createSeedData()
-    if (parsed?.plan?.startsOn !== fresh.plan.startsOn) {
-      return { ...fresh, profile: { ...fresh.profile, ...parsed.profile } }
-    }
+    if (!parsed?.plan?.startsOn) return createSeedData()
+
+    const now = today()
+    const start = toISO(currentPaydayOn(parsed.profile?.payCadence ?? 'semi-monthly', now))
+    if (parsed.plan.startsOn !== start) return rollCycle(parsed, now)
     return parsed
   } catch {
     return createSeedData()

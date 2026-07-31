@@ -36,8 +36,21 @@ export function TransactionSheet({
 
   const [kind, setKind] = useState<TransactionKind>(initial?.kind ?? 'expense')
   const [raw, setRaw] = useState(initial ? String(toPesos(initial.amount)) : '')
-  const [categoryId, setCategoryId] = useState(initial?.categoryId ?? 'food')
-  const [accountId, setAccountId] = useState(initial?.accountId ?? 'gcash')
+  // Defaults have to come from the ledger, not from the demo persona's ids.
+  // A hardcoded 'gcash' matches nothing in a real setup, and the reducer moves
+  // no balance for an account that isn't there — the expense would be logged
+  // and charged to its envelope while your cash never fell.
+  const fallbackAccountId =
+    data.accounts.find((a) => a.type !== 'credit' && a.type !== 'savings')?.id ??
+    data.accounts[0]?.id ??
+    ''
+  const fallbackCategoryId =
+    data.categories.find((c) => c.id === 'food' && c.kind === 'expense')?.id ??
+    data.categories.find((c) => c.kind === 'expense')?.id ??
+    ''
+
+  const [categoryId, setCategoryId] = useState(initial?.categoryId ?? fallbackCategoryId)
+  const [accountId, setAccountId] = useState(initial?.accountId ?? fallbackAccountId)
   const [debtId, setDebtId] = useState(
     initial?.debtId ?? data.debts.find((d) => !d.clearedOn)?.id ?? '',
   )

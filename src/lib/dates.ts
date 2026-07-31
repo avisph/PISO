@@ -59,6 +59,29 @@ export function currentPayday(from: Date = today()): Date {
   return new Date(from.getFullYear(), from.getMonth(), 0)
 }
 
+export type PayCadence = 'semi-monthly' | 'monthly'
+
+/** The last day of the month `offset` months from `from`. */
+const monthEnd = (from: Date, offset: number): Date =>
+  new Date(from.getFullYear(), from.getMonth() + 1 + offset, 0)
+
+/**
+ * The same two questions, for whichever payroll you are actually on. The
+ * `nextPayday`/`currentPayday` pair above assumes semi-monthly because the
+ * persona was; a monthly-paid person has one payday, at month end.
+ */
+export function nextPaydayOn(cadence: PayCadence, from: Date = today()): Date {
+  if (cadence !== 'monthly') return nextPayday(from)
+  const thisMonth = monthEnd(from, 0)
+  return thisMonth > from ? thisMonth : monthEnd(from, 1)
+}
+
+export function currentPaydayOn(cadence: PayCadence, from: Date = today()): Date {
+  if (cadence !== 'monthly') return currentPayday(from)
+  const thisMonth = monthEnd(from, 0)
+  return thisMonth <= from ? thisMonth : monthEnd(from, -1)
+}
+
 /** "Aug 15" */
 export const formatShort = (d: Date): string =>
   d.toLocaleDateString('en-PH', { month: 'short', day: 'numeric' })
