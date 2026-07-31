@@ -1,4 +1,5 @@
 import { useData } from '../state/store'
+import { DebtSheet } from '../components/LedgerSheets'
 import { Kicker } from '../components/ui'
 import { formatMoney, formatPct } from '../lib/money'
 import {
@@ -22,6 +23,7 @@ import { useState } from 'react'
 export function Debts({ onNavigate }: { onNavigate: (route: Route) => void }) {
   const data = useData()
   const [showStrategies, setShowStrategies] = useState(false)
+  const [adding, setAdding] = useState(false)
 
   const now = today()
   const owed = totalDebt(data)
@@ -49,9 +51,12 @@ export function Debts({ onNavigate }: { onNavigate: (route: Route) => void }) {
         </section>
         <div className="surface-pad muted" style={{ fontSize: 12.5, lineHeight: 1.55 }}>
           kapag may nautang ka — credit card, loan, kay kuya — ilagay mo dito. babantayan ko ang
-          balanse, ang minimum, at kung kailan ka talaga makakalaya. mag-log ka ng bayad sa +
-          button at lalabas siya dito.
+          balanse, ang minimum, at kung kailan ka talaga makakalaya.
         </div>
+        <button type="button" className="btn-outline btn-outline--sm" onClick={() => setAdding(true)}>
+          + Magdagdag ng utang
+        </button>
+        {adding && <DebtSheet onClose={() => setAdding(false)} />}
       </div>
     )
   }
@@ -159,6 +164,10 @@ export function Debts({ onNavigate }: { onNavigate: (route: Route) => void }) {
         })}
       </section>
 
+      <button type="button" className="add-row" onClick={() => setAdding(true)}>
+        + Magdagdag ng utang
+      </button>
+
       {cleared.length > 0 && (
         <section className="stack" style={{ gap: 8, marginTop: 2 }}>
           <Kicker tone="faint">Paid off 🏁</Kicker>
@@ -173,6 +182,8 @@ export function Debts({ onNavigate }: { onNavigate: (route: Route) => void }) {
           ))}
         </section>
       )}
+
+      {adding && <DebtSheet onClose={() => setAdding(false)} />}
 
       {showStrategies && (
         <section className="surface-pad stack" style={{ gap: 8, fontSize: 12.5, lineHeight: 1.5 }}>

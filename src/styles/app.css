@@ -1882,3 +1882,79 @@ button.debt-card:hover {
   border-color: var(--p-accent);
   color: var(--p-accent-text);
 }
+
+/* ── editable rows and the record sheets ──────────────────────────────────── */
+
+/* A row you can tap to edit. Same shape as the static row it replaces, plus
+   the affordance a button needs to look pressable. */
+.line-row--tap,
+.later-row--tap,
+.bill-row__body--tap {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: background 120ms ease;
+}
+.line-row--tap:hover,
+.later-row--tap:hover {
+  background: color-mix(in srgb, var(--p-accent) 6%, transparent);
+}
+.bill-row__body--tap {
+  background: none;
+  border: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.bill-row__body--tap:hover .bill-row__name {
+  color: var(--p-accent-text);
+}
+
+.sheet--form {
+  max-height: 88%;
+  overflow-y: auto;
+}
+.sheet__x {
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  color: var(--p-faint);
+  font-size: 17px;
+  line-height: 1;
+  transition: background 120ms ease, color 120ms ease;
+}
+.sheet__x:hover {
+  background: var(--p-track2);
+  color: var(--p-text);
+}
+
+.emoji-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+.emoji-pick {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: var(--p-surface);
+  border: 1px solid var(--p-border);
+  font-size: 16px;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+.emoji-pick:hover {
+  border-color: var(--p-accent-dim);
+}
+.emoji-pick[aria-pressed='true'] {
+  border-color: var(--p-accent);
+  background: var(--p-accent-softer);
+}
+
+.btn-quiet:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { useStore } from '../state/store'
 import { Kicker, RadioDot, Switch } from '../components/ui'
-import { formatMoney, parseAmount, type Centavos } from '../lib/money'
+import { formatMoney, type Centavos } from '../lib/money'
+import { AmountInput, Field, FieldGroup } from '../components/fields'
 import { formatShort, ordinalDay } from '../lib/dates'
 import {
   COMMON_BILLS,
@@ -69,84 +70,6 @@ export function PersonalityPicker() {
         )
       })}
     </div>
-  )
-}
-
-/* ── small form pieces ────────────────────────────────────────────────────── */
-
-/** One labelled control. A `<label>` may wrap exactly one — see FieldGroup. */
-function Field({
-  label,
-  hint,
-  children,
-}: {
-  label: string
-  hint?: string
-  children: React.ReactNode
-}) {
-  return (
-    <label className="field">
-      <span className="field__label">{label}</span>
-      {children}
-      {hint && <span className="field__hint">{hint}</span>}
-    </label>
-  )
-}
-
-/**
- * A labelled set of controls — a segmented control, say. Wrapping several
- * buttons in a `<label>` would splice the label's text into every button's
- * accessible name ("How often are you paid? Once a month"), so this uses a
- * group instead and names it once.
- */
-function FieldGroup({
-  label,
-  hint,
-  children,
-}: {
-  label: string
-  hint?: string
-  children: React.ReactNode
-}) {
-  return (
-    <div className="field" role="group" aria-label={label}>
-      <span className="field__label">{label}</span>
-      {children}
-      {hint && <span className="field__hint">{hint}</span>}
-    </div>
-  )
-}
-
-/**
- * Money input. Keeps the raw string while you type — formatting mid-keystroke
- * fights the caret — and only converts on the way out.
- */
-function AmountInput({
-  value,
-  onChange,
-  placeholder = '0',
-}: {
-  value: Centavos
-  onChange: (next: Centavos) => void
-  placeholder?: string
-}) {
-  const [text, setText] = useState(() => (value ? String(value / 100) : ''))
-
-  return (
-    <span className="field__money">
-      <span className="field__peso">₱</span>
-      <input
-        className="input input--money"
-        inputMode="decimal"
-        placeholder={placeholder}
-        value={text}
-        onChange={(e) => {
-          const next = e.target.value.replace(/[^\d.,]/g, '')
-          setText(next)
-          onChange(parseAmount(next))
-        }}
-      />
-    </span>
   )
 }
 

@@ -1,7 +1,9 @@
+import { useState } from 'react'
 import { useStore } from '../state/store'
+import { DebtSheet } from '../components/LedgerSheets'
 import { BackLink, Kicker, Ring } from '../components/ui'
 import { formatMoney, formatPct } from '../lib/money'
-import { cardUtilization, debtProgress, simulatePayoff } from '../lib/finance'
+import { cardUtilization, debtProgress, defaultSpendAccountId, simulatePayoff } from '../lib/finance'
 import {
   formatMonthYearShort,
   formatShort,
@@ -17,6 +19,7 @@ import { BesReaction } from '../components/BesReaction'
  * honest caveat: the statement is the source of truth, this is an estimate.
  */
 export function DebtDetail({ debtId, onBack }: { debtId: string; onBack: () => void }) {
+  const [editing, setEditing] = useState(false)
   const [data, dispatch] = useStore()
   const debt = data.debts.find((d) => d.id === debtId)
 
@@ -47,7 +50,7 @@ export function DebtDetail({ debtId, onBack }: { debtId: string; onBack: () => v
       transaction: {
         kind: 'debt_payment',
         amount: debt.minPayment,
-        accountId: 'payroll',
+        accountId: defaultSpendAccountId(data),
         debtId: debt.id,
         merchant: 'from BPI Payroll',
         date: toISO(now),
@@ -59,7 +62,7 @@ export function DebtDetail({ debtId, onBack }: { debtId: string; onBack: () => v
         type: 'bill/pay',
         billId: linkedBill.id,
         amount: 0,
-        accountId: 'payroll',
+        accountId: defaultSpendAccountId(data),
       })
     }
   }
@@ -68,10 +71,26 @@ export function DebtDetail({ debtId, onBack }: { debtId: string; onBack: () => v
     <div className="screen screen--pad-bottom" style={{ gap: 16 }}>
       <div className="row-center">
         <BackLink onClick={onBack}>{debt.name}</BackLink>
-        <span className="faint" style={{ fontSize: 16 }} aria-hidden="true">
-          ⋯
-        </span>
+        <button
+          type="button"
+          className="btn-chip"
+          onClick={() => setEditing(true)}
+          aria-label={`Edit ${debt.name}`}
+        >
+          Edit
+        </button>
       </div>
+
+      {editing && (
+        <DebtSheet
+          debt={debt}
+          onClose={() => {
+            setEditing(false)
+            // Deleting from here leaves nothing to show.
+            if (!data.debts.some((d) => d.id === debtId)) onBack()
+          }}
+        />
+      )}
 
       <section style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
         <Ring

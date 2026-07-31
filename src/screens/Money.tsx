@@ -1,4 +1,6 @@
+import { useState } from 'react'
 import { useData } from '../state/store'
+import { AccountSheet } from '../components/LedgerSheets'
 import { Bar, Kicker } from '../components/ui'
 import { formatMoney } from '../lib/money'
 import {
@@ -18,6 +20,7 @@ import type { Route } from '../nav/routes'
  */
 export function Money({ onNavigate }: { onNavigate: (route: Route) => void }) {
   const data = useData()
+  const [editing, setEditing] = useState<'new' | string | null>(null)
   const now = today()
   const { plan } = data
   const { allocated, unallocated, status } = planAllocation(plan)
@@ -127,13 +130,28 @@ export function Money({ onNavigate }: { onNavigate: (route: Route) => void }) {
       <section className="stack" style={{ gap: 8 }}>
         <Kicker tone="faint">Accounts</Kicker>
         {data.accounts.map((account) => (
-          <div key={account.id} className="line-row">
+          <button
+            key={account.id}
+            type="button"
+            className="line-row line-row--tap"
+            onClick={() => setEditing(account.id)}
+          >
             <span className="line-row__name">{account.name}</span>
             <span className="line-row__amt">{formatMoney(account.balance)}</span>
             <span className="chip">{account.type}</span>
-          </div>
+          </button>
         ))}
+        <button type="button" className="add-row" onClick={() => setEditing('new')}>
+          + Magdagdag ng account
+        </button>
       </section>
+
+      {editing && (
+        <AccountSheet
+          account={editing === 'new' ? undefined : data.accounts.find((a) => a.id === editing)}
+          onClose={() => setEditing(null)}
+        />
+      )}
     </div>
   )
 }

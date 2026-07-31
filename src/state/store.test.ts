@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
-import { reducer, rollCycle, type Action } from './store'
+import { reducer, rollCycle, whyNotDeleteAccount, whyNotDeleteDebt, type Action } from './store'
 import type { AppData } from '../types'
 import { peso } from '../lib/money'
 import { addDays, currentPaydayOn, nextPaydayOn, toISO, today } from '../lib/dates'
-import { availableCash, totalDebt } from '../lib/finance'
+import { availableCash, defaultSpendAccountId, totalDebt } from '../lib/finance'
 
 const now = today()
 const on = (offset: number) => toISO(addDays(now, offset))
@@ -382,5 +382,209 @@ describe('the plan', () => {
     const added = after.plan.items.at(-1)!
     expect(added.name).toBe('Gifts')
     expect(after.plan.items.filter((i) => i.id === added.id)).toHaveLength(1)
+  })
+})
+
+describe('adding and editing accounts', () => {
+  it('adds one with a fresh id', () => {
+    const after = run(ledger(), {
+      type: 'account/add',
+      account: { name: 'Maya', type: 'ewallet', balance: peso(1_500) },
+    })
+    expect(after.accounts).toHaveLength(4)
+    expect(availableCash(after)).toBe(peso(14_500))
+    expect(new Set(after.accounts.map((a) => a.id)).size).toBe(4)
+  })
+
+  it('edits without disturbing anything else', () => {
+    const before = ledger()
+    const after = run(before, {
+      type: 'account/update',
+      id: 'gcash',
+      changes: { name: 'GCash (main)', balance: peso(4_000) },
+    })
+    expect(after.accounts.find((a) => a.id === 'gcash')!.name).toBe('GCash (main)')
+    expect(availableCash(after)).toBe(availableCash(before) + peso(1_000))
+    expect(after.transactions).toEqual(before.transactions)
+  })
+
+  it('refuses to delete one that transactions point at', () => {
+    const state = run(ledger(), expense())
+    expect(whyNotDeleteAccount(state, 'gcash')).toMatch(/entry/)
+
+    const after = run(state, { type: 'account/delete', id: 'gcash' })
+    // Refused, and refused *silently in the reducer* — the sheet shows why.
+    expect(after.accounts).toHaveLength(3)
+    expect(after).toEqual(state)
+  })
+
+  it('allows it once the entries are gone', () => {
+    const added = run(ledger(), expense())
+    const cleared = run(added, { type: 'transaction/delete', id: added.transactions[0].id })
+    expect(whyNotDeleteAccount(cleared, 'gcash')).toBeNull()
+
+    const after = run(cleared, { type: 'account/delete', id: 'gcash' })
+    expect(after.accounts.map((a) => a.id)).toEqual(['bank', 'save'])
+  })
+
+  it('never lets you delete the last account', () => {
+    let state = ledger()
+    state = { ...state, accounts: [state.accounts[0]] }
+    expect(whyNotDeleteAccount(state, 'bank')).toMatch(/kahit isa/)
+    expect(run(state, { type: 'account/delete', id: 'bank' }).accounts).toHaveLength(1)
+  })
+})
+
+describe('adding and editing bills', () => {
+  it('adds one, open and unpaid', () => {
+    const after = run(ledger(), {
+      type: 'bill/add',
+      bill: { name: 'Internet', amountDue: peso(1_699), dueOn: on(9), recurring: true },
+    })
+    const bill = after.bills.find((b) => b.name === 'Internet')!
+    expect(bill.status).toBe('open')
+    expect(bill.amountPaid).toBe(0)
+  })
+
+  it('raising the amount past what was paid re-opens it', () => {
+    const paid = run(ledger(), {
+      type: 'bill/pay',
+      billId: 'rent',
+      amount: peso(8_000),
+      accountId: 'bank',
+    })
+    expect(paid.bills[0].status).toBe('paid')
+
+    const raised = run(paid, {
+      type: 'bill/update',
+      id: 'rent',
+      changes: { amountDue: peso(9_500) },
+    })
+    expect(raised.bills[0].status).toBe('partial')
+  })
+
+  it('lowering it below what was paid settles it', () => {
+    const part = run(ledger(), {
+      type: 'bill/pay',
+      billId: 'rent',
+      amount: peso(3_000),
+      accountId: 'bank',
+    })
+    expect(part.bills[0].status).toBe('partial')
+
+    const lowered = run(part, {
+      type: 'bill/update',
+      id: 'rent',
+      changes: { amountDue: peso(2_000) },
+    })
+    expect(lowered.bills[0].status).toBe('paid')
+  })
+
+  it('deleting it takes the envelope that funded it', () => {
+    const state = {
+      ...ledger(),
+      plan: {
+        ...ledger().plan,
+        items: [
+          ...ledger().plan.items,
+          { id: 'b:rent', name: 'Rent', emoji: '🏠', planned: peso(8_000), spent: 0, locked: true, billId: 'rent' },
+        ],
+      },
+    }
+    const after = run(state, { type: 'bill/delete', id: 'rent' })
+    expect(after.bills).toHaveLength(0)
+    expect(after.plan.items.some((i) => i.billId === 'rent')).toBe(false)
+  })
+})
+
+describe('adding and editing debts', () => {
+  const newDebt = {
+    name: 'Utang kay Kuya',
+    kind: 'informal' as const,
+    balance: peso(5_000),
+    originalAmount: peso(5_000),
+    monthlyRate: 0,
+    minPayment: 0,
+  }
+
+  it('adds one with an empty history', () => {
+    const after = run(ledger(), { type: 'debt/add', debt: newDebt })
+    expect(after.debts).toHaveLength(2)
+    expect(totalDebt(after)).toBe(peso(23_000))
+    expect(after.debts.at(-1)!.history).toEqual([])
+  })
+
+  it('will not let the balance exceed what was borrowed', () => {
+    const after = run(ledger(), {
+      type: 'debt/update',
+      id: 'card',
+      changes: { balance: peso(999_999) },
+    })
+    expect(after.debts[0].balance).toBe(peso(20_000))
+  })
+
+  it('refuses to delete one with a payment recorded against it', () => {
+    const paid = run(ledger(), {
+      type: 'transaction/add',
+      transaction: {
+        kind: 'debt_payment',
+        amount: peso(1_000),
+        accountId: 'bank',
+        debtId: 'card',
+        date: on(0),
+      },
+    })
+    expect(whyNotDeleteDebt(paid, 'card')).toMatch(/naitala/)
+    expect(run(paid, { type: 'debt/delete', id: 'card' }).debts).toHaveLength(1)
+  })
+
+  it('deleting an untouched one unhooks everything that pointed at it', () => {
+    const state: AppData = {
+      ...ledger(),
+      accounts: [
+        ...ledger().accounts,
+        { id: 'visa', name: 'Visa', type: 'credit', balance: peso(-1_000), linkedDebtId: 'card' },
+      ],
+      bills: [{ ...ledger().bills[0], debtId: 'card' }],
+    }
+    const after = run(state, { type: 'debt/delete', id: 'card' })
+
+    expect(after.debts).toHaveLength(0)
+    expect(after.accounts.find((a) => a.id === 'visa')!.linkedDebtId).toBeUndefined()
+    expect(after.bills[0].debtId).toBeUndefined()
+    expect(after.plan.items.some((i) => i.debtId === 'card')).toBe(false)
+  })
+})
+
+describe('the default account a screen should pay from', () => {
+  /**
+   * Bills and the debt detail used to hardcode the demo persona's 'payroll'.
+   * Against a real ledger that matches nothing: the bill went to paid, a
+   * transaction appeared, and no balance moved.
+   */
+  it('is a real spendable account, never savings or a card', () => {
+    const id = defaultSpendAccountId(ledger())
+    const account = ledger().accounts.find((a) => a.id === id)!
+    expect(account.type).not.toBe('savings')
+    expect(account.type).not.toBe('credit')
+  })
+
+  it('paying a bill through it actually moves the money', () => {
+    const before = ledger()
+    const after = run(before, {
+      type: 'bill/pay',
+      billId: 'rent',
+      amount: peso(8_000),
+      accountId: defaultSpendAccountId(before),
+    })
+    expect(availableCash(after)).toBe(availableCash(before) - peso(8_000))
+  })
+
+  it('falls back to whatever exists rather than to an empty string', () => {
+    const savingsOnly: AppData = {
+      ...ledger(),
+      accounts: [{ id: 'save', name: 'Savings', type: 'savings', balance: peso(1_000) }],
+    }
+    expect(defaultSpendAccountId(savingsOnly)).toBe('save')
   })
 })

@@ -7,7 +7,7 @@ import {
   type Dispatch,
   type ReactNode,
 } from 'react'
-import type { AppData, Personality, ThemeId, Transaction } from '../types'
+import type { Account, AppData, Bill, Debt, Personality, ThemeId, Transaction } from '../types'
 import type { Centavos } from '../lib/money'
 import { clampZero } from '../lib/money'
 import { createSeedData } from '../data/seed'
@@ -21,6 +21,15 @@ export type Action =
   | { type: 'transaction/update'; id: string; changes: Partial<Omit<Transaction, 'id' | 'createdAt'>> }
   | { type: 'transaction/delete'; id: string }
   | { type: 'bill/pay'; billId: string; amount: Centavos; accountId: string }
+  | { type: 'account/add'; account: Omit<Account, 'id'> }
+  | { type: 'account/update'; id: string; changes: Partial<Omit<Account, 'id'>> }
+  | { type: 'account/delete'; id: string }
+  | { type: 'bill/add'; bill: Omit<Bill, 'id' | 'amountPaid' | 'status'> }
+  | { type: 'bill/update'; id: string; changes: Partial<Omit<Bill, 'id'>> }
+  | { type: 'bill/delete'; id: string }
+  | { type: 'debt/add'; debt: Omit<Debt, 'id' | 'history'> }
+  | { type: 'debt/update'; id: string; changes: Partial<Omit<Debt, 'id' | 'history'>> }
+  | { type: 'debt/delete'; id: string }
   | { type: 'plan/setPlanned'; itemId: string; planned: Centavos }
   | { type: 'plan/addItem'; name: string; emoji: string; planned: Centavos }
   | { type: 'profile/personality'; personality: Personality }
@@ -112,6 +121,32 @@ function applyEffects(state: AppData, t: Transaction, sign: 1 | -1): AppData {
 }
 
 /**
+ * Why this account cannot be deleted, or null if it can.
+ *
+ * Deleting an account that transactions point at would leave those entries
+ * unreachable: they would still show in Activity, still count in the totals,
+ * and the reducer could never move their balance again. Editing or deleting
+ * one of them afterwards would silently do nothing.
+ */
+export function whyNotDeleteAccount(data: AppData, id: string): string | null {
+  const used = data.transactions.filter((t) => t.accountId === id || t.toAccountId === id).length
+  if (used > 0) {
+    return `May ${used} ${used === 1 ? 'entry' : 'entries'} dito. Ilipat o burahin mo muna sila.`
+  }
+  if (data.accounts.length <= 1) return 'Kailangan ng kahit isang account — dun mapupunta ang pera.'
+  return null
+}
+
+/** Same rule for debts: a recorded payment must keep pointing at something. */
+export function whyNotDeleteDebt(data: AppData, id: string): string | null {
+  const used = data.transactions.filter((t) => t.debtId === id).length
+  if (used > 0) {
+    return `May ${used} ${used === 1 ? 'bayad' : 'bayad'} na naitala dito. Burahin mo muna sila sa Activity.`
+  }
+  return null
+}
+
+/**
  * Every mutation with side effects runs here, in one place.
  */
 export function reducer(state: AppData, action: Action): AppData {
@@ -192,6 +227,122 @@ export function reducer(state: AppData, action: Action): AppData {
         },
       }
     }
+
+    /* ── accounts, bills and debts ───────────────────────────────────────
+       Adding is easy. Deleting is where money goes missing: a transaction
+       pointing at an account that no longer exists still sits in the list,
+       but the reducer can never move that balance again — the entry becomes
+       a number with nowhere to come from. So a delete that would orphan
+       history is refused, and `whyNotDelete` tells the screen what to say
+       instead of the app quietly doing nothing. */
+
+    case 'account/add':
+      return {
+        ...state,
+        accounts: [...state.accounts, { ...action.account, id: nextId('acct') }],
+      }
+
+    case 'account/update':
+      return {
+        ...state,
+        accounts: state.accounts.map((a) =>
+          a.id === action.id ? { ...a, ...action.changes, id: a.id } : a,
+        ),
+      }
+
+    case 'account/delete':
+      if (whyNotDeleteAccount(state, action.id)) return state
+      return { ...state, accounts: state.accounts.filter((a) => a.id !== action.id) }
+
+    case 'bill/add':
+      return {
+        ...state,
+        bills: [
+          ...state.bills,
+          { ...action.bill, id: nextId('bill'), amountPaid: 0, status: 'open' as const },
+        ],
+      }
+
+    case 'bill/update': {
+      const bills = state.bills.map((b) => {
+        if (b.id !== action.id) return b
+        const next = { ...b, ...action.changes, id: b.id }
+        // Raising the amount past what was paid re-opens it; lowering it below
+        // can settle it. The status must never contradict the numbers.
+        return {
+          ...next,
+          status:
+            next.amountPaid <= 0
+              ? ('open' as const)
+              : next.amountPaid >= next.amountDue
+                ? ('paid' as const)
+                : ('partial' as const),
+        }
+      })
+      // A funded plan row follows its bill.
+      const plan = {
+        ...state.plan,
+        items: state.plan.items.map((i) => {
+          const bill = i.billId ? bills.find((b) => b.id === i.billId) : undefined
+          return bill && i.locked ? { ...i, name: bill.name, planned: bill.amountDue } : i
+        }),
+      }
+      return { ...state, bills, plan }
+    }
+
+    case 'bill/delete':
+      return {
+        ...state,
+        bills: state.bills.filter((b) => b.id !== action.id),
+        // The envelope that existed only to fund it goes too, otherwise the
+        // plan keeps reserving money for a bill that is gone.
+        plan: {
+          ...state.plan,
+          items: state.plan.items.filter((i) => i.billId !== action.id),
+        },
+      }
+
+    case 'debt/add':
+      return {
+        ...state,
+        debts: [...state.debts, { ...action.debt, id: nextId('debt'), history: [] }],
+      }
+
+    case 'debt/update':
+      return {
+        ...state,
+        debts: state.debts.map((d) =>
+          d.id === action.id
+            ? {
+                ...d,
+                ...action.changes,
+                id: d.id,
+                // A balance may not exceed what was originally borrowed.
+                balance: clampZero(
+                  Math.min(
+                    action.changes.originalAmount ?? d.originalAmount,
+                    action.changes.balance ?? d.balance,
+                  ),
+                ),
+              }
+            : d,
+        ),
+      }
+
+    case 'debt/delete':
+      if (whyNotDeleteDebt(state, action.id)) return state
+      return {
+        ...state,
+        debts: state.debts.filter((d) => d.id !== action.id),
+        bills: state.bills.map((b) => (b.debtId === action.id ? { ...b, debtId: undefined } : b)),
+        accounts: state.accounts.map((a) =>
+          a.linkedDebtId === action.id ? { ...a, linkedDebtId: undefined } : a,
+        ),
+        plan: {
+          ...state.plan,
+          items: state.plan.items.filter((i) => i.debtId !== action.id),
+        },
+      }
 
     case 'plan/setPlanned':
       return {

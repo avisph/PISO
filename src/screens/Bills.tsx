@@ -1,8 +1,9 @@
 import { useState } from 'react'
+import { BillSheet } from '../components/LedgerSheets'
 import { useStore } from '../state/store'
 import { Kicker } from '../components/ui'
 import { formatMoney } from '../lib/money'
-import { billOutstanding, openBills, upcoming } from '../lib/finance'
+import { billOutstanding, defaultSpendAccountId, openBills, upcoming } from '../lib/finance'
 import { daysBetween, formatShort, parseISO, relativeDue, today } from '../lib/dates'
 import { BesReaction } from '../components/BesReaction'
 
@@ -14,6 +15,7 @@ const HORIZONS = [7, 15, 30] as const
 export function Bills() {
   const [data, dispatch] = useStore()
   const [horizon, setHorizon] = useState<(typeof HORIZONS)[number]>(7)
+  const [editing, setEditing] = useState<'new' | string | null>(null)
 
   const now = today()
   const window = upcoming(data, horizon, now)
@@ -23,7 +25,7 @@ export function Bills() {
     .sort((a, b) => a.dueOn.localeCompare(b.dueOn))
 
   const pay = (billId: string, amount: number) =>
-    dispatch({ type: 'bill/pay', billId, amount, accountId: 'payroll' })
+    dispatch({ type: 'bill/pay', billId, amount, accountId: defaultSpendAccountId(data) })
 
   return (
     <div className="screen screen--pad-bottom" style={{ gap: 14 }}>
@@ -70,8 +72,15 @@ export function Bills() {
 
           return (
             <div key={bill.id} className={`bill-row${overdue ? ' bill-row--overdue' : ''}`}>
-              <div className="bill-row__body">
-                <span className="bill-row__name">{bill.name}</span>
+              <button
+                type="button"
+                className="bill-row__body bill-row__body--tap"
+                onClick={() => setEditing(bill.id)}
+              >
+                <span className="bill-row__name">
+                  {bill.emoji ? `${bill.emoji} ` : ''}
+                  {bill.name}
+                </span>
                 <span
                   className={`bill-row__meta ${overdue ? 'danger' : daysOut <= 3 ? 'warn' : 'muted'}`}
                 >
@@ -79,7 +88,7 @@ export function Bills() {
                     ? `${relativeDue(dueDate, now)} · ${formatMoney(outstanding)} of ${formatMoney(bill.amountDue)} still unpaid`
                     : `due ${formatShort(dueDate)} · ${relativeDue(dueDate, now)}${bill.hint ? ` · ${bill.hint}` : ''}`}
                 </span>
-              </div>
+              </button>
               <span className="bill-row__amt">{formatMoney(outstanding)}</span>
               <button type="button" className="btn-mini" onClick={() => pay(bill.id, outstanding)}>
                 Pay
@@ -94,21 +103,34 @@ export function Bills() {
           <Kicker tone="faint">Later this cycle</Kicker>
           <section className="stack">
             {later.map((bill, index) => (
-              <div
+              <button
                 key={bill.id}
-                className={`later-row${index < later.length - 1 ? ' rule-fade' : ''}`}
+                type="button"
+                className={`later-row later-row--tap${index < later.length - 1 ? ' rule-fade' : ''}`}
+                onClick={() => setEditing(bill.id)}
               >
                 <span>{bill.name}</span>
                 <span className="muted">
                   {formatShort(parseISO(bill.dueOn))} · {formatMoney(billOutstanding(bill))}
                 </span>
-              </div>
+              </button>
             ))}
           </section>
         </>
       )}
 
+      <button type="button" className="add-row" onClick={() => setEditing('new')}>
+        + Magdagdag ng bill
+      </button>
+
       <BesReaction context="bills" className="quote push-top" />
+
+      {editing && (
+        <BillSheet
+          bill={editing === 'new' ? undefined : data.bills.find((b) => b.id === editing)}
+          onClose={() => setEditing(null)}
+        />
+      )}
     </div>
   )
 }

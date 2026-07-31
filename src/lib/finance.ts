@@ -24,6 +24,19 @@ export const availableCash = (data: AppData): Centavos =>
       .map((a) => a.balance),
   )
 
+/**
+ * Which account a payment should come out of when nobody has said.
+ *
+ * Screens used to hardcode the demo persona's ids ('payroll', 'gcash'). Against
+ * a real ledger those match nothing, and the reducer moves no balance for an
+ * account that is not there — so the payment was recorded, the bill marked
+ * paid, and the money never left. Ask the ledger instead.
+ */
+export const defaultSpendAccountId = (data: AppData): string =>
+  data.accounts.find((a) => a.type !== 'credit' && a.type !== 'savings')?.id ??
+  data.accounts[0]?.id ??
+  ''
+
 export const savingsBalance = (data: AppData): Centavos =>
   sum(data.accounts.filter((a) => a.type === 'savings').map((a) => a.balance))
 

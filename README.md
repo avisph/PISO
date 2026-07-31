@@ -124,6 +124,19 @@ starts at ₱0 for the planner to assign. A bill left at ₱0 is skipped. If you
 look around than type, step 1 offers the demo persona instead, and **Settings → Start
 over** switches between the two later.
 
+### Changing it afterwards
+
+Accounts, bills and debts can be added and edited from the screen they live on: Money for
+accounts, Bills for bills, Debts for debts (and the debt detail's Edit). Onboarding never
+asks about debts at all, so this is the only way one ever gets into the ledger.
+
+Deleting is where money goes missing, so two deletes are refused rather than allowed to
+orphan history: an **account** that transactions point at, and a **debt** with a payment
+recorded against it. The reducer would still list those entries and could never move their
+balances again. The sheet says which it is instead of the button quietly doing nothing.
+Deleting a bill also removes the envelope that existed only to fund it, and deleting a debt
+unhooks the card account and bill that referenced it.
+
 ## How it's built
 
 ```
