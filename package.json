@@ -11,7 +11,9 @@
     "preview": "vite preview",
     "start": "NODE_ENV=production tsx server/index.ts",
     "typecheck": "tsc -b",
-    "ai:check": "tsx server/check-ai.ts"
+    "ai:check": "tsx server/check-ai.ts",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.115.0",
@@ -29,6 +31,7 @@
     "concurrently": "^9.1.0",
     "tsx": "^4.19.2",
     "typescript": "^5.7.2",
-    "vite": "^6.0.5"
+    "vite": "^6.0.5",
+    "vitest": "^4.1.10"
   }
 }

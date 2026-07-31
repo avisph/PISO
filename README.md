@@ -8,6 +8,7 @@ happens to know your bank balance. This is the implementation of the Claude Desi
 ```bash
 npm install
 npm run dev          # web on :5173, api on :8787
+npm test             # the finance engine and the ledger
 ```
 
 Open http://localhost:5173.
@@ -154,6 +155,14 @@ strings.
 pure functions: safe-to-spend, daily allowance, upcoming obligations, plan variance,
 payoff projection, snowball/avalanche, the health score. The dashboard and Bes read the
 same functions, so the number in the hero and the number in a chat answer cannot drift.
+
+**Tests** (`npm test`) cover the parts that can lose money quietly: centavo arithmetic and
+the thousands separators a typed salary carries, payday across month ends and February and
+New Year on both cadences, safe-to-spend and its breakdown, and the reducer — where a
+delete has to restore every derived number exactly and a new cycle must not take the ledger
+with it. Each bug that shipped during this build has a test named after what it did. They
+were checked by reintroducing those bugs one at a time and confirming the suite goes red;
+a suite that only ever passes has proved nothing.
 
 **Bes's voice** lives in three places, and all three had to move together: the persona
 prompt (`server/bes.ts`), the canned library used with no model (`server/offline.ts`), and

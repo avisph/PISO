@@ -278,7 +278,7 @@ export function reducer(state: AppData, action: Action): AppData {
  * while the only data was Dafhnee's and would have silently destroyed a real
  * ledger the first time a cycle rolled over.
  */
-function rollCycle(data: AppData, now: Date): AppData {
+export function rollCycle(data: AppData, now: Date): AppData {
   const cadence = data.profile.payCadence
   const start = currentPaydayOn(cadence, now)
   const end = addDays(nextPaydayOn(cadence, now), -1)
