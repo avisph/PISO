@@ -1,3 +1,4 @@
+import './env' // must come first — everything below reads process.env
 import { createServer } from 'node:http'
 import { fileURLToPath } from 'node:url'
 import path from 'node:path'

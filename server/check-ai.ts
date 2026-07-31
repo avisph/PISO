@@ -6,6 +6,7 @@
  *   npm run ai:check
  *   OLLAMA_HOST=http://192.168.1.20:11434 npm run ai:check
  */
+import './env' // read .env the same way the server does
 
 const HOST = (process.env.OLLAMA_HOST ?? 'http://localhost:11434').replace(/\/+$/, '')
 const KEY = process.env.OLLAMA_API_KEY ?? ''

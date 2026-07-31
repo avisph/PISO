@@ -217,8 +217,9 @@ export function Chat() {
             {status.provider === 'offline' ? (
               <>
                 Offline mode — no model configured on the server, so Bes is answering from the
-                canned library. Set <code>OLLAMA_API_KEY</code> (or{' '}
-                <code>ANTHROPIC_API_KEY</code>) and restart to talk to a real model.
+                canned library. Point <code>OLLAMA_HOST</code> in <code>.env</code> at your Ollama
+                (run <code>npm run ai:check</code> to find it), then restart. A hosted key —{' '}
+                <code>OLLAMA_API_KEY</code> or <code>ANTHROPIC_API_KEY</code> — works too.
               </>
             ) : (
               <>

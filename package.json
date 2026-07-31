@@ -10,7 +10,7 @@
     "build": "tsc -b && vite build",
     "preview": "vite preview",
     "start": "NODE_ENV=production tsx server/index.ts",
-    "typecheck": "tsc -b --noEmit false --emitDeclarationOnly false",
+    "typecheck": "tsc -b",
     "ai:check": "tsx server/check-ai.ts"
   },
   "dependencies": {

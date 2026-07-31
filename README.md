@@ -35,6 +35,10 @@ Put this in your .env:
     OLLAMA_MODEL=qwen2.5:7b
 ```
 
+Copy `.env.example` to `.env` and edit it — the server reads that file at startup, so
+`npm run dev` picks it up with no extra flags. A variable exported in your shell wins over
+the file, which is what you want when testing a second host.
+
 Prefer a **tool-capable** model — Bes creates the draft-confirm card by calling a
 `draft_transaction` tool. Without one she still works (the server falls back to a local
 text parser) but the parse is rougher. `ai:check` marks which of yours support tools.

@@ -5,3 +5,9 @@ dist
 *.log
 
 *.tsbuildinfo
+
+# tsc emitting next to the sources means a build flag went wrong — never commit it
+/src/**/*.js
+/server/**/*.js
+/shared/**/*.js
+/vite.config.js
