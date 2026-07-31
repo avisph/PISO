@@ -80,10 +80,10 @@ export function offlineReply(request: ChatRequest): ChatEvent[] {
       type: 'text',
       text:
         draft.kind === 'income'
-          ? `money came in. drafted it. confirm mo lang.`
-          : `drafted. confirm mo kung totoo.${
+          ? `pumasok ang pera. drafted ko na. confirm mo lang.`
+          : `drafted ko na. confirm mo kung totoo.${
               left !== null && envelope
-                ? ` ${envelope.name}: ₱${left.toLocaleString('en-PH')} na lang for the rest of the cycle.`
+                ? ` ${envelope.name} mo: ₱${left.toLocaleString('en-PH')} na lang hanggang payday.`
                 : ''
             }`,
     })
@@ -100,12 +100,12 @@ export function offlineReply(request: ChatRequest): ChatEvent[] {
       type: 'text',
       text:
         value === null
-          ? `depends how much. safe-to-spend mo is ₱${pesos(context.safeToSpend)} until ${context.payday.date}.`
+          ? `depende kung magkano. ₱${pesos(context.safeToSpend)} ang safe to spend mo hanggang ${context.payday.date}.`
           : value <= safe
-            ? `technically yes. ₱${pesos(amount!)} fits in ₱${pesos(context.safeToSpend)}.${
-                bill ? ` also ${bill.name} lands in ${bill.dueIn} days.` : ''
-              } "afford" is doing a lot of work here.`
-            : `no. ₱${pesos(amount!)} vs ₱${pesos(context.safeToSpend)} safe-to-spend. hindi kasya unless you take it from something else.`,
+            ? `technically kasya. ₱${pesos(amount!)} sa ₱${pesos(context.safeToSpend)} mo.${
+                bill ? ` pero si ${bill.name}, ${bill.dueIn} days na lang.` : ''
+              } nag-o-overtime yung salitang "afford" dyan ha.`
+            : `hindi. ₱${pesos(amount!)} vs ₱${pesos(context.safeToSpend)} safe to spend. hindi kasya, unless kunin mo sa iba.`,
     })
     return events
   }
@@ -115,10 +115,10 @@ export function offlineReply(request: ChatRequest): ChatEvent[] {
     events.push({
       type: 'text',
       text: bills.length
-        ? `incoming: ${bills
+        ? `paparating: ${bills
             .map((b) => `${b.name} ₱${pesos(b.amount)} in ${b.dueIn} day(s)`)
-            .join(', ')}. no surprises, promise.`
-        : 'walang due sa malapit. rare. enjoy it.',
+            .join(', ')}. wala nang sorpresa, promise.`
+        : 'walang due sa malapit. rare ito ha, i-enjoy mo.',
     })
     return events
   }
@@ -130,15 +130,15 @@ export function offlineReply(request: ChatRequest): ChatEvent[] {
     events.push({
       type: 'text',
       text: worst
-        ? `mostly ${worst.name}: ₱${pesos(worst.spent)} out of ₱${pesos(worst.planned)} planned. not an accusation. an observation.`
-        : 'wala pang gastos this cycle. suspicious. but ok.',
+        ? `sa ${worst.name} ka umabot ng ₱${pesos(worst.spent)} sa ₱${pesos(worst.planned)} planned. hindi ito akusasyon. observation lang.`
+        : 'wala pang gastos this cycle. kahina-hinala. pero sige.',
     })
     return events
   }
 
   events.push({
     type: 'text',
-    text: `safe to spend: ₱${pesos(context.safeToSpend)}, or ₱${pesos(context.dailyAllowance)}/day until ${context.payday.date}. ask away.`,
+    text: `₱${pesos(context.safeToSpend)} ang safe to spend mo, or ₱${pesos(context.dailyAllowance)}/day hanggang ${context.payday.date}. tanong ka lang.`,
   })
   return events
 }

@@ -48,9 +48,9 @@ export function Debts({ onNavigate }: { onNavigate: (route: Route) => void }) {
           </div>
         </section>
         <div className="surface-pad muted" style={{ fontSize: 12.5, lineHeight: 1.55 }}>
-          kapag may nautang ka — credit card, loan, kay kuya — ilagay mo dito. i'll track the
-          balance, the minimum, and when you're actually free. log a payment from the + button
-          and it shows up here.
+          kapag may nautang ka — credit card, loan, kay kuya — ilagay mo dito. babantayan ko ang
+          balanse, ang minimum, at kung kailan ka talaga makakalaya. mag-log ka ng bayad sa +
+          button at lalabas siya dito.
         </div>
       </div>
     )

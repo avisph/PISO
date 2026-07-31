@@ -49,13 +49,13 @@ export function Reports() {
           <Kicker tone="accent">Month review</Kicker>
           <div className="h-page">wala pa akong masasabi</div>
           <div className="muted" style={{ fontSize: 12.5, marginTop: 6, lineHeight: 1.55 }}>
-            kailangan ko munang makakita ng galaw. log a few days and this fills in: cash flow,
-            where the plan slipped, and a health score that actually means something.
+            kailangan ko munang makakita ng galaw. mag-log ka ng ilang araw at mapupuno ito:
+            cash flow, saan dumulas ang plano, at health score na may kahulugan.
           </div>
         </section>
         <div className="surface-pad muted" style={{ fontSize: 12, lineHeight: 1.55 }}>
-          hindi kita bibigyan ng score ngayon. zero bills due would read as a perfect record.
-          flattering. not true.
+          hindi kita bibigyan ng score ngayon. zero bills due, mukhang perpektong record.
+          nakakabola. pero hindi totoo.
         </div>
       </div>
     )

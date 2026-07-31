@@ -128,8 +128,8 @@ export function Transactions({ onBack }: { onBack: () => void }) {
       {days.length === 0 && (
         <div className="surface-pad muted" style={{ fontSize: 12.5 }}>
           {data.transactions.length === 0
-            ? 'wala pang laman. tap the + and log something.'
-            : 'walang tugma. try something else.'}
+            ? 'wala pang laman. pindutin mo ang + at mag-log ka.'
+            : 'walang tugma. try mo ibang salita.'}
         </div>
       )}
 

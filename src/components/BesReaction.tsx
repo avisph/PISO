@@ -42,17 +42,17 @@ export function reactionFor(
       return pick(
         {
           gentle: `${late.name} is ${days} ${days === 1 ? 'day' : 'days'} late. no judgment. gusto mo bayaran na natin?`,
-          balanced: `${late.name}. ${days} ${days === 1 ? 'day' : 'days'} late. not to be dramatic but the wifi you're reading this on has feelings.`,
-          savage: `${late.name}, ${days} ${days === 1 ? 'day' : 'days'} overdue, ${formatMoney(billOutstanding(late))}. bold of you.`,
+          balanced: `si ${late.name}, ${days} ${days === 1 ? 'day' : 'days'} late na. wag lang ma-dramatic pero may damdamin din ang wifi na ginagamit mo ngayon.`,
+          savage: `${late.name}, ${days} ${days === 1 ? 'day' : 'days'} overdue, ${formatMoney(billOutstanding(late))}. ang tapang mo ha.`,
         },
         data.profile.personality,
       )
     }
     return pick(
       {
-        gentle: 'walang overdue. clean record this cycle, quietly proud of you.',
-        balanced: 'nothing overdue. enjoy it, may bill pa naman next week.',
-        savage: 'zero overdue bills. sino ka and what did you do to my friend.',
+        gentle: 'walang overdue. ang linis ng record mo this cycle, proud ako tahimik lang.',
+        balanced: 'walang overdue. i-enjoy mo, may bill pa naman next week.',
+        savage: 'zero overdue bills. sino ka at anong ginawa mo sa kaibigan ko.',
       },
       data.profile.personality,
     )
@@ -62,8 +62,8 @@ export function reactionFor(
     return pick(
       {
         gentle: 'steady ang bayad mo. tuloy lang, ayos ka.',
-        balanced: 'not you making responsible decisions. character development is real.',
-        savage: "paying above the minimum? unprompted? ok ate girl, i see you.",
+        balanced: 'ikaw ba talaga tong gumagawa ng responsableng desisyon. character development, totoo pala.',
+        savage: 'lampas sa minimum? kusa? sige ate girl, nakikita kita.',
       },
       data.profile.personality,
     )
@@ -77,8 +77,8 @@ export function reactionFor(
     return pick(
       {
         gentle: `${name} is a bit over — ${formatMoney(worst.variance)}. gusto mo i-rebalance natin?`,
-        balanced: `${over} over on ${name}. so the plan was a suggestion. good to know.`,
-        savage: `${formatMoney(worst.variance)} over on ${name}. the budget didn't fail you, you just never consulted it.`,
+        balanced: `${over} over ka sa ${name}. so suggestion lang pala yung plan. noted.`,
+        savage: `${formatMoney(worst.variance)} over sa ${name}. hindi ka binigo ng budget, hindi mo lang siya kinausap.`,
       },
       data.profile.personality,
     )
@@ -87,7 +87,7 @@ export function reactionFor(
   return pick(
     {
       gentle: 'nasa plano ka pa. keep going ha.',
-      balanced: 'every envelope still behaving. suspicious. but we love it.',
+      balanced: 'lahat ng envelope, mabait pa. kahina-hinala. pero sige, we love it.',
       savage: 'on plan ka. screenshot this, baka hindi na maulit.',
     },
     data.profile.personality,

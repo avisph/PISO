@@ -28,14 +28,14 @@ export const PERSONALITIES: {
     key: 'balanced',
     name: 'Balanced',
     sample:
-      '“₱1,500 over on food. so the meal plan was a suggestion. good to know.”',
+      '“₱1,500 over ka sa food. so suggestion lang pala yung meal plan. noted.”',
     recommended: true,
   },
   {
     key: 'savage',
     name: 'Savage',
     sample:
-      '“₱1,500 over on food. the budget didn’t fail you, you just never consulted it.”',
+      '“₱1,500 over sa food. hindi ka binigo ng budget, hindi mo lang siya kinausap.”',
   },
 ]
 
