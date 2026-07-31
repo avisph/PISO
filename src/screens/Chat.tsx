@@ -1,12 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
 import { useStore } from '../state/store'
-import type { ChatEvent, ChatStatus, ChatTurn, Draft } from '../../shared/chat'
+import type { ChatEvent, ChatRequest, ChatStatus, ChatTurn, Draft } from '../../shared/chat'
 import { buildContext, describeDraft } from '../lib/chatContext'
 import { formatMoney } from '../lib/money'
 import { formatTime, toISO, today } from '../lib/dates'
 import { PERSONALITIES } from './Onboarding'
+import { mentionsAmount, offlineReply } from '../../shared/offline'
 
 const SUGGESTIONS = ["What's due soon?", 'Where did my money go?', 'Plan my salary']
+
+/**
+ * Where the API lives. Empty means same origin, which is right in dev and when
+ * the built app is served by its own server. Installed on a phone there is no
+ * server at all, so Settings lets you point at the PC on your wifi.
+ */
+const apiBase = (server: string | undefined) => (server ? server.replace(/\/+$/, '') : '')
 
 /**
  * Models like to hand back their whole reply wrapped in quotation marks, as
@@ -49,11 +57,18 @@ export function Chat() {
   const personality = PERSONALITIES.find((p) => p.key === data.profile.personality)
 
   useEffect(() => {
-    fetch('/api/chat/status')
+    fetch(`${apiBase(data.profile.besServer)}/api/chat/status`)
       .then((r) => r.json())
-      .then(setStatus)
-      .catch(() => setStatus({ live: false, model: 'unavailable', provider: 'offline' }))
-  }, [])
+      .then((s: ChatStatus) => setStatus({ serverReachable: true, ...s }))
+      .catch(() =>
+        setStatus({
+          serverReachable: false,
+          live: false,
+          model: 'canned response library',
+          provider: 'offline',
+        }),
+      )
+  }, [data.profile.besServer])
 
   useEffect(() => {
     logRef.current?.scrollTo({ top: logRef.current.scrollHeight, behavior: 'smooth' })
@@ -70,15 +85,29 @@ export function Chat() {
     setStreamed('')
     setError(null)
 
+    const request = { turns: nextTurns, context: buildContext(data) }
+
     try {
-      const response = await fetch('/api/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ turns: nextTurns, context: buildContext(data) }),
-      })
+      let response: Response
+      try {
+        response = await fetch(`${apiBase(data.profile.besServer)}/api/chat`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(request),
+        })
+      } catch {
+        // No server at all — the normal case for the installed app away from
+        // home. Answer here rather than showing an error: the canned library
+        // is the same one the server would have used, and the notice above the
+        // composer already says a model is not answering.
+        answerLocally(request)
+        return
+      }
 
       if (!response.ok || !response.body) {
-        throw new Error(response.status === 429 ? 'slow down a sec.' : 'Bes is unreachable.')
+        if (response.status === 429) throw new Error('slow down a sec.')
+        answerLocally(request)
+        return
       }
 
       const reader = response.body.getReader()
@@ -123,6 +152,37 @@ export function Chat() {
       setStreamed('')
       setPending(false)
     }
+  }
+
+  /** The canned library, run in the browser. Same events, same draft rules. */
+  function answerLocally(request: ChatRequest) {
+    const mayDraft = mentionsAmount(
+      [...request.turns].reverse().find((t) => t.role === 'user')?.text ?? '',
+    )
+    let assembled = ''
+    let draft: Draft | undefined
+    let toolUseId: string | undefined
+
+    for (const event of offlineReply(request)) {
+      if (event.type === 'text') assembled += event.text
+      if (event.type === 'draft' && mayDraft && !draft) {
+        draft = event.draft
+        toolUseId = event.toolUseId
+      }
+    }
+
+    setTurns((current) => [
+      ...current,
+      { role: 'assistant', text: assembled.trim(), draft, toolUseId },
+    ])
+    setStatus((current) => ({
+      serverReachable: current?.serverReachable ?? false,
+      live: false,
+      model: 'canned response library',
+      provider: 'offline',
+    }))
+    setStreamed('')
+    setPending(false)
   }
 
   function resolveDraft(draft: Draft, toolUseId: string, outcome: 'confirmed' | 'discarded') {
@@ -252,7 +312,14 @@ export function Chat() {
       <div className="chat__foot">
         {status && !status.live && (
           <div className="chat__notice">
-            {status.provider === 'offline' ? (
+            {status.serverReachable === false ? (
+              <>
+                Walang server na naaabot, kaya dito sa telepono mismo sumasagot si Bes mula sa
+                canned library. Tuloy pa rin ang lahat — nasa device ang ledger mo. Para sa
+                totoong model: buksan ang Piso sa PC mo, tapos ilagay ang address niya sa{' '}
+                <b>Settings → Bes</b>.
+              </>
+            ) : status.provider === 'offline' ? (
               <>
                 Offline mode — no model configured on the server, so Bes is answering from the
                 canned library. Point <code>OLLAMA_HOST</code> in <code>.env</code> at your Ollama

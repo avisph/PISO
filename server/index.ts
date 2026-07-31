@@ -5,7 +5,7 @@ import path from 'node:path'
 import fs from 'node:fs'
 import express from 'express'
 import type { ChatRequest, ChatStatus } from '../shared/chat'
-import { offlineReply } from './offline'
+import { offlineReply } from '../shared/offline'
 import { mentionsAmount } from './bes'
 import type { Provider } from './providers/types'
 import { createAnthropicProvider } from './providers/anthropic'
@@ -57,6 +57,7 @@ app.get('/api/health', (_req, res) => {
 
 app.get('/api/chat/status', (_req, res) => {
   const status: ChatStatus = {
+    serverReachable: true,
     live: Boolean(provider?.available) && providerHealthy,
     model: provider?.model ?? 'canned response library',
     provider: provider?.id ?? 'offline',

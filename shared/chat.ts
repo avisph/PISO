@@ -56,6 +56,12 @@ export type ChatEvent =
   | { type: 'done' }
 
 export interface ChatStatus {
+  /**
+   * False when there is no server on the other end at all — the normal case
+   * for the installed app. Distinct from "a server answered and said it has no
+   * model", which needs completely different advice.
+   */
+  serverReachable?: boolean
   /** True when a real model answers; false means the canned library. */
   live: boolean
   model: string

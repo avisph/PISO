@@ -1,4 +1,5 @@
 import type { FinanceContext } from '../shared/chat'
+export { mentionsAmount } from '../shared/offline'
 
 /**
  * Bes — the deadpan Gen Z bestie who happens to know your bank balance.
@@ -55,24 +56,6 @@ Good (savage): "₱1,500 over ka sa food. hindi ka binigo ng budget, hindi mo la
 Bad — too English, no code-switching: "technically yes. ₱3,000 fits in your ₱5,851. Meralco is due Tuesday."
 Bad — slang salad: "OMG bestie 😭 that's SO not it, the way you're spending is giving broke era fr fr no cap 💀"
 The first Bad one is correct in content and wrong in voice; the second is a brand account, not a friend. Write like the Good ones.`
-
-/**
- * Does this message actually report an amount?
- *
- * A draft can only ever restate money the user just told us about. When the
- * message carries no figure at all — "where did my money go?" — any amount in
- * a draft was invented by the model, usually by lifting a number out of the
- * snapshot. Confirming that would charge the user a second time for spending
- * already recorded, which is the one mistake a ledger must never make.
- *
- * Spelled-out amounts count: "dalawang libo", "2k", "five hundred".
- */
-export function mentionsAmount(text: string): boolean {
-  if (/\d/.test(text)) return true
-  return /\b(libo|daan|raan|piso|sangkatlo|kalahati|isang|dalawang|tatlong|apat|lima|limang|sampung|beinte|singkwenta|dose|hundred|thousand|half)\b/i.test(
-    text,
-  )
-}
 
 export function contextBlock(context: FinanceContext): string {
   const envelopes = context.envelopes

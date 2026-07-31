@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Piso</string>
+    <string name="title_activity_main">Piso</string>
+    <string name="package_name">ph.piso.app</string>
+    <string name="custom_url_scheme">ph.piso.app</string>
+</resources>

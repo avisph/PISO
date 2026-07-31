@@ -137,6 +137,34 @@ balances again. The sheet says which it is instead of the button quietly doing n
 Deleting a bill also removes the envelope that existed only to fund it, and deleting a debt
 unhooks the card account and bill that referenced it.
 
+## On a phone
+
+The ledger has always been on-device — `localStorage`, no account, no sync, nothing leaves
+unless you point Bes at a server. What was missing was a way to *open* it on a phone.
+
+**As a PWA.** The build now ships a manifest, icons and a service worker, so Android offers
+"Install app" and it opens from the launcher with no browser chrome and no connection.
+
+One constraint worth knowing before you try: **a PWA installs only from a secure origin.**
+`http://192.168.1.20:5173` is not one — the service worker will not register and Android
+downgrades the offer to a plain bookmark. The `.github/workflows/pages.yml` workflow builds
+and publishes to GitHub Pages, which is HTTPS, on every push to `main`. Enable it once under
+**Settings → Pages → Source: GitHub Actions**.
+
+**As an APK.** `capacitor.config.ts` and `android/` wrap the same `dist/` — one codebase,
+not two. `npm run android:build` produces a debug APK, given an Android SDK. Play Store
+publishing needs a signing key, which is a separate decision.
+
+Both rely on `base: './'` in `vite.config.ts`: the same build has to work at a domain root,
+under a `/PISO/` Pages subpath, and from the filesystem inside the APK. Nothing anywhere
+names the account, so transferring the repo changes nothing.
+
+**Bes, away from home.** On a phone there is no server, so `shared/offline.ts` — the canned
+Taglish library — runs in the browser instead, with the same draft rules the server applies.
+Chat keeps working; it says plainly that no model is answering. **Settings → Bes** takes the
+address of the PC your Ollama runs on, for when you are on that wifi. Nothing is cached from
+`/api`: a stale answer about your money is worse than no answer.
+
 ## How it's built
 
 ```

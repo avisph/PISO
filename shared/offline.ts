@@ -1,10 +1,15 @@
-import type { ChatEvent, ChatRequest, Draft } from '../shared/chat'
+import type { ChatEvent, ChatRequest, Draft } from './chat'
 
 /**
- * The fallback response library, used only when the server has no Anthropic
- * credentials. It keeps the screen demonstrable — including the parse-draft
- * card — without pretending to be the real thing: the UI shows an "offline"
- * notice whenever this is what answered.
+ * The fallback response library.
+ *
+ * Lives in `shared/` because it has to run in two places. On the server it
+ * answers when no model is configured. In the browser it answers when there is
+ * no server at all — which is the normal case on a phone, where the app is
+ * installed and your Ollama is at home on the wifi you are not currently on.
+ *
+ * Pure and dependency-free for that reason: no fetch, no node built-ins.
+ * The UI always shows an "offline" notice when this is what replied.
  */
 
 const CATEGORY_HINTS: { match: RegExp; categoryId: string; merchant?: string }[] = [
@@ -17,6 +22,24 @@ const CATEGORY_HINTS: { match: RegExp; categoryId: string; merchant?: string }[]
   { match: /\b(gamot|doctor|hospital|medicine|checkup)\b/i, categoryId: 'health' },
   { match: /\b(padala|allowance|nanay|tatay|kuya|ate|family)\b/i, categoryId: 'family' },
 ]
+
+/**
+ * Does this message actually report an amount?
+ *
+ * A draft can only ever restate money the user just told us about. When the
+ * message carries no figure at all — "where did my money go?" — any amount in
+ * a draft was invented by the model, usually by lifting a number out of the
+ * snapshot. Confirming that would charge the user a second time for spending
+ * already recorded, which is the one mistake a ledger must never make.
+ *
+ * Spelled-out amounts count: "dalawang libo", "2k", "five hundred".
+ */
+export function mentionsAmount(text: string): boolean {
+  if (/\d/.test(text)) return true
+  return /\b(libo|daan|raan|piso|sangkatlo|kalahati|isang|dalawang|tatlong|apat|lima|limang|sampung|beinte|singkwenta|dose|hundred|thousand|half)\b/i.test(
+    text,
+  )
+}
 
 const SPEND_WORDS = /\b(spent|gastos|nagastos|bumili|binili|bayad|binayaran|nag-?grab|gumastos)\b/i
 const INCOME_WORDS = /\b(sahod|received|natanggap|nakatanggap|kinita|income|bonus)\b/i

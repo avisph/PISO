@@ -1,6 +1,6 @@
 import type { ChatEvent, ChatRequest, ChatTurn } from '../../shared/chat'
 import { BES_PERSONA, DRAFT_TOOL, contextBlock } from '../bes'
-import { parseDraft } from '../offline'
+import { parseDraft } from '../../shared/offline'
 import { coerceDraft, type Provider } from './types'
 
 /**

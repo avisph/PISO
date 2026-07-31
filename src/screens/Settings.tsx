@@ -4,6 +4,7 @@ import { BackLink, Kicker, Switch } from '../components/ui'
 import { themeById } from '../theme/themes'
 import { PERSONALITIES, PersonalityPicker } from './Onboarding'
 import { formatMoney, peso } from '../lib/money'
+import { Field } from '../components/fields'
 import type { Route } from '../nav/routes'
 import type { ChatStatus } from '../../shared/chat'
 
@@ -95,6 +96,11 @@ export function Settings({
       </section>
 
       <section className="stack" style={{ gap: 8 }}>
+        <Kicker tone="faint">Bes</Kicker>
+        <BesServerField />
+      </section>
+
+      <section className="stack" style={{ gap: 8 }}>
         <Kicker tone="faint">Start over</Kicker>
         <button
           type="button"
@@ -139,13 +145,14 @@ export function Settings({
 export function PersonalitySettings({ onBack }: { onBack: () => void }) {
   const [data] = useStore()
   const [status, setStatus] = useState<ChatStatus | null>(null)
+  const base = data.profile.besServer ?? ''
 
   useEffect(() => {
-    fetch('/api/chat/status')
+    fetch(`${base}/api/chat/status`)
       .then((r) => r.json())
       .then(setStatus)
       .catch(() => setStatus(null))
-  }, [])
+  }, [base])
 
   return (
     <div className="screen screen--pad-bottom" style={{ gap: 16 }}>
@@ -176,6 +183,71 @@ export function PersonalitySettings({ onBack }: { onBack: () => void }) {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+/**
+ * Where Bes's server lives.
+ *
+ * On a desktop the app and the server share an origin and this stays empty.
+ * Installed on a phone there is no server at all, so this is how you reach the
+ * PC your Ollama runs on — and when it is unreachable, the chat answers from
+ * the canned library in the browser rather than failing.
+ */
+function BesServerField() {
+  const [data, dispatch] = useStore()
+  const [text, setText] = useState(data.profile.besServer ?? '')
+  const [probe, setProbe] = useState<'idle' | 'checking' | 'ok' | 'bad'>('idle')
+
+  async function check(url: string) {
+    setProbe('checking')
+    try {
+      const base = url.trim().replace(/\/+$/, '')
+      const response = await fetch(`${base}/api/chat/status`, {
+        signal: AbortSignal.timeout(4_000),
+      })
+      setProbe(response.ok ? 'ok' : 'bad')
+    } catch {
+      setProbe('bad')
+    }
+  }
+
+  return (
+    <div className="stack" style={{ gap: 8 }}>
+      <Field
+        label="Server address"
+        hint={
+          probe === 'ok'
+            ? 'Abot ko siya. Ito na ang tatanungin ni Bes.'
+            : probe === 'bad'
+              ? 'Hindi ko maabot. Canned na sagot muna si Bes — gagana pa rin ang app.'
+              : 'Iwanan mong blangko kung dito rin sa PC tumatakbo ang server. Sa phone: http://<ip-ng-pc>:8787'
+        }
+      >
+        <input
+          className="input"
+          value={text}
+          inputMode="url"
+          placeholder="http://192.168.1.20:8787"
+          onChange={(e) => {
+            setText(e.target.value)
+            setProbe('idle')
+          }}
+          onBlur={() => dispatch({ type: 'profile/besServer', url: text })}
+        />
+      </Field>
+      <button
+        type="button"
+        className="btn-quiet"
+        disabled={probe === 'checking'}
+        onClick={() => {
+          dispatch({ type: 'profile/besServer', url: text })
+          void check(text)
+        }}
+      >
+        {probe === 'checking' ? 'Tinitingnan…' : 'Subukan ang koneksyon'}
+      </button>
     </div>
   )
 }

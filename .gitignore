@@ -11,3 +11,16 @@ dist
 /server/**/*.js
 /shared/**/*.js
 /vite.config.js
+
+# Capacitor / Android build output. The project itself is committed so the APK
+# can be built without re-running `cap add`; the artefacts are not.
+/android/.gradle
+/android/build
+/android/app/build
+/android/app/src/main/assets/public
+/android/app/src/main/assets/capacitor.config.json
+/android/local.properties
+/android/.idea
+/android/capacitor-cordova-android-plugins
+*.apk
+*.aab

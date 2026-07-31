@@ -37,6 +37,7 @@ export type Action =
   | { type: 'profile/theme'; theme: ThemeId }
   | { type: 'profile/matchSystem'; on: boolean }
   | { type: 'profile/buffer'; buffer: Centavos }
+  | { type: 'profile/besServer'; url: string }
   | { type: 'profile/onboarded' }
   /** Onboarding finished: replace the demo persona with the real answers. */
   | { type: 'data/setup'; answers: SetupAnswers }
@@ -387,6 +388,12 @@ export function reducer(state: AppData, action: Action): AppData {
 
     case 'profile/buffer':
       return { ...state, profile: { ...state.profile, safeToSpendBuffer: action.buffer } }
+
+    case 'profile/besServer':
+      return {
+        ...state,
+        profile: { ...state.profile, besServer: action.url.trim().replace(/\/+$/, '') },
+      }
 
     case 'profile/onboarded':
       return { ...state, profile: { ...state.profile, onboarded: true } }

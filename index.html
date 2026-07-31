@@ -4,7 +4,18 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
     <title>Piso — money, minus the drama</title>
-    <meta name="description" content="Piso: a Philippine personal finance tracker with Bes, your slightly judgmental conyo bestie." />
+    <meta name="description" content="Piso: a Philippine personal finance tracker with Bes, your deadpan Gen Z money companion. Your ledger stays on this device." />
+
+    <!-- Installable. The theme colour follows the light/dark skins so the
+         Android status bar matches the screen rather than fighting it. -->
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <meta name="theme-color" content="#fff4ea" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#17171f" media="(prefers-color-scheme: dark)" />
+    <link rel="icon" href="./icon-192.png" type="image/png" />
+    <link rel="apple-touch-icon" href="./icon-192.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="Piso" />
   </head>
   <body>
     <div id="root"></div>

@@ -140,6 +140,13 @@ export interface Profile {
   theme: ThemeId
   matchSystemTheme: boolean
   onboarded: boolean
+  /**
+   * Where Bes's server lives. Empty means "same origin", which is right on a
+   * desktop running `npm run dev`. Installed on a phone there is no server at
+   * all, so this is how you point at the PC on your wifi — and when it cannot
+   * be reached, the canned library answers in the browser instead.
+   */
+  besServer?: string
 }
 
 export interface AppData {
