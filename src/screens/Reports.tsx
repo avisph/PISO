@@ -47,15 +47,15 @@ export function Reports() {
       <div className="screen screen--pad-bottom" style={{ gap: 16 }}>
         <section>
           <Kicker tone="accent">Month review</Kicker>
-          <div className="h-page">Wala pa akong masasabi</div>
+          <div className="h-page">wala pa akong masasabi</div>
           <div className="muted" style={{ fontSize: 12.5, marginTop: 6, lineHeight: 1.55 }}>
-            Kailangan ko munang makakita ng galaw. Log a few days of spending and this fills in:
-            cash flow, where the plan slipped, and a health score that means something.
+            kailangan ko munang makakita ng galaw. log a few days and this fills in: cash flow,
+            where the plan slipped, and a health score that actually means something.
           </div>
         </section>
         <div className="surface-pad muted" style={{ fontSize: 12, lineHeight: 1.55 }}>
-          Hindi kita bibigyan ng score ngayon. Zero bills due looks like a perfect record, and
-          that would only be flattering — hindi totoo.
+          hindi kita bibigyan ng score ngayon. zero bills due would read as a perfect record.
+          flattering. not true.
         </div>
       </div>
     )

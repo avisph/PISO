@@ -49,7 +49,9 @@ export function parseDraft(text: string): Draft | null {
     amount,
     categoryId: income ? 'salary' : (hint?.categoryId ?? 'food'),
     merchant: text.match(/\b(grab|jollibee|mcdo|netflix|meralco|pldt|shopee|lazada)\b/i)?.[0],
-    accountId: 'gcash',
+    // No accountId: this runs on the server and cannot see the user's
+    // accounts. Naming one from the demo persona would point the draft at an
+    // account that may not exist. The client picks a real one on confirm.
     date: /\bkahapon|yesterday\b/i.test(text) ? 'yesterday' : 'today',
   }
 }
@@ -78,10 +80,10 @@ export function offlineReply(request: ChatRequest): ChatEvent[] {
       type: 'text',
       text:
         draft.kind === 'income'
-          ? `Ayan, pumasok ang pera. Nilagay ko na sa draft — confirm mo lang, bes.`
-          : `Noted. Draft ko muna, ikaw bahala kung i-confirm.${
+          ? `money came in. drafted it. confirm mo lang.`
+          : `drafted. confirm mo kung totoo.${
               left !== null && envelope
-                ? ` ${envelope.name} envelope: ₱${left.toLocaleString('en-PH')} na lang for the rest of the cycle.`
+                ? ` ${envelope.name}: ₱${left.toLocaleString('en-PH')} na lang for the rest of the cycle.`
                 : ''
             }`,
     })
@@ -98,12 +100,12 @@ export function offlineReply(request: ChatRequest): ChatEvent[] {
       type: 'text',
       text:
         value === null
-          ? `Depende sa magkano, bes. Safe-to-spend mo is ₱${pesos(context.safeToSpend)} until ${context.payday.date}.`
+          ? `depends how much. safe-to-spend mo is ₱${pesos(context.safeToSpend)} until ${context.payday.date}.`
           : value <= safe
-            ? `Uy technically yes naman — ₱${pesos(amount!)} fits pa sa ₱${pesos(context.safeToSpend)} safe-to-spend mo. Pero bes${
-                bill ? `, si ${bill.name} darating in ${bill.dueIn} days` : ''
-              }, so "afford" is doing a lot of work dito ha.`
-            : `Hindi muna, bes. ₱${pesos(amount!)} vs ₱${pesos(context.safeToSpend)} safe-to-spend — hindi siya kasya without borrowing from something else.`,
+            ? `technically yes. ₱${pesos(amount!)} fits in ₱${pesos(context.safeToSpend)}.${
+                bill ? ` also ${bill.name} lands in ${bill.dueIn} days.` : ''
+              } "afford" is doing a lot of work here.`
+            : `no. ₱${pesos(amount!)} vs ₱${pesos(context.safeToSpend)} safe-to-spend. hindi kasya unless you take it from something else.`,
     })
     return events
   }
@@ -113,10 +115,10 @@ export function offlineReply(request: ChatRequest): ChatEvent[] {
     events.push({
       type: 'text',
       text: bills.length
-        ? `Ito ang paparating: ${bills
+        ? `incoming: ${bills
             .map((b) => `${b.name} ₱${pesos(b.amount)} in ${b.dueIn} day(s)`)
-            .join(', ')}. Wala nang surprises, promise.`
-        : 'Wala munang due sa malapit. Rare ito, enjoy mo.',
+            .join(', ')}. no surprises, promise.`
+        : 'walang due sa malapit. rare. enjoy it.',
     })
     return events
   }
@@ -128,15 +130,15 @@ export function offlineReply(request: ChatRequest): ChatEvent[] {
     events.push({
       type: 'text',
       text: worst
-        ? `Sa ${worst.name} ka pinaka-gumastos: ₱${pesos(worst.spent)} out of ₱${pesos(worst.planned)} planned. Hindi naman ito accusation ha, observation lang.`
-        : 'Wala pang gastos this cycle. Suspicious, pero sige.',
+        ? `mostly ${worst.name}: ₱${pesos(worst.spent)} out of ₱${pesos(worst.planned)} planned. not an accusation. an observation.`
+        : 'wala pang gastos this cycle. suspicious. but ok.',
     })
     return events
   }
 
   events.push({
     type: 'text',
-    text: `Safe to spend mo ngayon: ₱${pesos(context.safeToSpend)}, or ₱${pesos(context.dailyAllowance)}/day until ${context.payday.date}. Ask mo lang kung ano ang gusto mong malaman, bes.`,
+    text: `safe to spend: ₱${pesos(context.safeToSpend)}, or ₱${pesos(context.dailyAllowance)}/day until ${context.payday.date}. ask away.`,
   })
   return events
 }

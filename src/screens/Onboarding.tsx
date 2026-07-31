@@ -22,20 +22,20 @@ export const PERSONALITIES: {
   {
     key: 'gentle',
     name: 'Gentle',
-    sample: '“Uy, food’s a bit over plan — ₱1,500. Gusto mo i-rebalance natin?”',
+    sample: '“food is a bit over plan — ₱1,500. gusto mo i-rebalance natin?”',
   },
   {
     key: 'balanced',
     name: 'Balanced',
     sample:
-      '“Food budget exceeded by ₱1,500 na. The meal plan was apparently suggestion lang pala.”',
+      '“₱1,500 over on food. so the meal plan was a suggestion. good to know.”',
     recommended: true,
   },
   {
     key: 'savage',
     name: 'Savage',
     sample:
-      '“₱1,500 over on food, bes. The budget didn’t fail you — hindi mo lang siya kinonsulta.”',
+      '“₱1,500 over on food. the budget didn’t fail you, you just never consulted it.”',
   },
 ]
 

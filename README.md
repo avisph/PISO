@@ -1,7 +1,7 @@
 # Piso
 
-A Philippine personal finance tracker with **Bes** — a slightly judgmental conyo Taglish
-money companion. This is the implementation of the Claude Design handoff in
+A Philippine personal finance tracker with **Bes** — a deadpan Gen Z money companion who
+happens to know your bank balance. This is the implementation of the Claude Design handoff in
 `project/Piso Mockups.dc.html` (the design bundle and its chat transcript are still in
 `project/`, `chats/` and `docs/handoff-README.md`).
 
@@ -141,6 +141,13 @@ strings.
 pure functions: safe-to-spend, daily allowance, upcoming obligations, plan variance,
 payoff projection, snowball/avalanche, the health score. The dashboard and Bes read the
 same functions, so the number in the hero and the number in a chat answer cannot drift.
+
+**Bes's voice** lives in three places, and all three had to move together: the persona
+prompt (`server/bes.ts`), the canned library used with no model (`server/offline.ts`), and
+the on-screen reaction lines (`src/components/BesReaction.tsx`). Gen Z sarcastic, Taglish,
+lowercase, deadpan — the joke is in the delivery, not the slang count. The prompt carries
+an explicit calibration section, because "sarcastic" left undefined turns into a brand
+account with three emoji per sentence. Sass level moves the sharpness, never the voice.
 
 **Bes.** The server builds a bounded snapshot (derived numbers only — no transaction
 history) and streams it to whichever provider is configured. Every provider emits the same

@@ -56,7 +56,7 @@ export function Chat() {
       })
 
       if (!response.ok || !response.body) {
-        throw new Error(response.status === 429 ? 'Slow down a bit, bes.' : 'Bes is unreachable.')
+        throw new Error(response.status === 429 ? 'slow down a sec.' : 'Bes is unreachable.')
       }
 
       const reader = response.body.getReader()
@@ -105,13 +105,29 @@ export function Chat() {
 
   function resolveDraft(draft: Draft, toolUseId: string, outcome: 'confirmed' | 'discarded') {
     if (outcome === 'confirmed') {
+      // A model can name an account that doesn't exist, and the offline parser
+      // used to hardcode one. The reducer moves no balance for an unknown id,
+      // so the entry would land in the list with your cash untouched — check
+      // both ids against the ledger before writing.
+      const known = (id: string | undefined) =>
+        id && data.accounts.some((a) => a.id === id) ? id : undefined
+      const accountId =
+        known(draft.accountId) ??
+        data.accounts.find((a) => a.type !== 'credit' && a.type !== 'savings')?.id ??
+        data.accounts[0]?.id ??
+        ''
+      const categoryId = data.categories.some((c) => c.id === draft.categoryId)
+        ? draft.categoryId
+        : data.categories.find((c) => c.kind === (draft.kind === 'income' ? 'income' : 'expense'))
+            ?.id
+
       dispatch({
         type: 'transaction/add',
         transaction: {
           kind: draft.kind,
           amount: Math.round(Number(draft.amount) * 100),
-          categoryId: draft.categoryId,
-          accountId: draft.accountId ?? 'gcash',
+          categoryId,
+          accountId,
           debtId: draft.debtId,
           merchant: draft.merchant,
           note: draft.note,
@@ -148,8 +164,8 @@ export function Chat() {
 
         {turns.length === 0 && !pending && (
           <div className="bubble-bes">
-            Hoy {data.profile.name}! Ask me anything about your money — or just tell me what you
-            spent and I'll draft it for you. Try: “spent 350 on grab kanina”.
+            hi {data.profile.name}. ask me anything about your money, or just tell me what you
+            spent and i'll draft it. try: “spent 350 on grab kanina”.
           </div>
         )}
 

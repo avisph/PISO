@@ -11,7 +11,8 @@ import type { Personality } from '../types'
  *  1. Reactions are opt-out; when off, nothing renders.
  *  2. Health, family and emergency spending is never joked about — a hard
  *     rule, not a setting.
- *  3. Copy is conyo Taglish, and the sass level follows the personality.
+ *  3. Copy is Gen Z deadpan Taglish, and the sass level follows the
+ *     personality — same voice throughout, only the sharpness moves.
  */
 
 const NEVER_JOKE_CATEGORIES = new Set(['health', 'family'])
@@ -40,18 +41,18 @@ export function reactionFor(
       const days = Math.abs(daysBetween(now, parseISO(late.dueOn)))
       return pick(
         {
-          gentle: `Uy bes, si ${late.name} is ${days} ${days === 1 ? 'day' : 'days'} late na. Gusto mo bayaran na natin?`,
-          balanced: `Bes, si ${late.name} is ${days} ${days === 1 ? 'day' : 'days'} late na. The internet you're reading this on may feelings din.`,
-          savage: `${late.name}, ${days} ${days === 1 ? 'day' : 'days'} overdue. Ang tapang mo ha — ${formatMoney(billOutstanding(late))} lang naman 'yan.`,
+          gentle: `${late.name} is ${days} ${days === 1 ? 'day' : 'days'} late. no judgment. gusto mo bayaran na natin?`,
+          balanced: `${late.name}. ${days} ${days === 1 ? 'day' : 'days'} late. not to be dramatic but the wifi you're reading this on has feelings.`,
+          savage: `${late.name}, ${days} ${days === 1 ? 'day' : 'days'} overdue, ${formatMoney(billOutstanding(late))}. bold of you.`,
         },
         data.profile.personality,
       )
     }
     return pick(
       {
-        gentle: 'Walang overdue — ang linis ng record mo this cycle, bes.',
-        balanced: "Nothing overdue. Kalma muna tayo — may Meralco pa naman next week.",
-        savage: 'No overdue bills. Sino ka at anong ginawa mo sa kaibigan ko?',
+        gentle: 'walang overdue. clean record this cycle, quietly proud of you.',
+        balanced: 'nothing overdue. enjoy it, may bill pa naman next week.',
+        savage: 'zero overdue bills. sino ka and what did you do to my friend.',
       },
       data.profile.personality,
     )
@@ -60,9 +61,9 @@ export function reactionFor(
   if (context === 'debt') {
     return pick(
       {
-        gentle: 'Ang galing mo, bes — steady lang ang bayad. Tuloy-tuloy lang tayo.',
-        balanced: 'Look at you naman, making responsible decisions. Character development talaga, bes.',
-        savage: "Paying more than the minimum? Sino'ng nagturo sa'yo? Proud ako, kahit papaano.",
+        gentle: 'steady ang bayad mo. tuloy lang, ayos ka.',
+        balanced: 'not you making responsible decisions. character development is real.',
+        savage: "paying above the minimum? unprompted? ok ate girl, i see you.",
       },
       data.profile.personality,
     )
@@ -75,9 +76,9 @@ export function reactionFor(
     const name = worst.item.name.toLowerCase()
     return pick(
       {
-        gentle: `Uy, ${name} is a bit over plan — ${formatMoney(worst.variance)}. Gusto mo i-rebalance natin?`,
-        balanced: `Bes, you spent ${over} more on ${name} kaysa sa plan. The meal plan was more of a suggestion lang pala.`,
-        savage: `${formatMoney(worst.variance)} over on ${name}, bes. The budget didn't fail you — hindi mo lang siya kinonsulta.`,
+        gentle: `${name} is a bit over — ${formatMoney(worst.variance)}. gusto mo i-rebalance natin?`,
+        balanced: `${over} over on ${name}. so the plan was a suggestion. good to know.`,
+        savage: `${formatMoney(worst.variance)} over on ${name}. the budget didn't fail you, you just never consulted it.`,
       },
       data.profile.personality,
     )
@@ -85,9 +86,9 @@ export function reactionFor(
 
   return pick(
     {
-      gentle: 'Nasa plano ka pa naman, bes. Keep going ha.',
-      balanced: 'Every envelope is still behaving. Suspicious, pero we love to see it.',
-      savage: 'On plan ka. Screenshot mo ‘to, baka hindi na maulit.',
+      gentle: 'nasa plano ka pa. keep going ha.',
+      balanced: 'every envelope still behaving. suspicious. but we love it.',
+      savage: 'on plan ka. screenshot this, baka hindi na maulit.',
     },
     data.profile.personality,
   )

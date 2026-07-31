@@ -44,13 +44,13 @@ export function Debts({ onNavigate }: { onNavigate: (route: Route) => void }) {
           <Kicker>You owe</Kicker>
           <div className="h-hero h-hero--sm">{formatMoney(0)}</div>
           <div style={{ fontSize: 12.5, color: 'var(--p-accent-text2)', marginTop: 2 }}>
-            Wala kang utang na naka-track. Sana all.
+            wala kang utang na naka-track. sana all.
           </div>
         </section>
         <div className="surface-pad muted" style={{ fontSize: 12.5, lineHeight: 1.55 }}>
-          Kapag may nautang ka — credit card, loan, o kay kuya — ilagay mo dito at susubaybayan
-          ko ang balanse, ang minimum, at kung kailan ka matatapos. Log a payment from the +
-          button and it lands here.
+          kapag may nautang ka — credit card, loan, kay kuya — ilagay mo dito. i'll track the
+          balance, the minimum, and when you're actually free. log a payment from the + button
+          and it shows up here.
         </div>
       </div>
     )
